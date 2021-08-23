@@ -1,10 +1,10 @@
 pragma solidity ^0.8.4;
 
 import "../registry/ENS.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../dwebtoken/DwebToken.sol";
 
-abstract contract BaseRegistrar is Ownable, IERC721 {
+abstract contract BaseRegistrar is Ownable {
     uint constant public GRACE_PERIOD = 90 days;
 
     event ControllerAdded(address indexed controller);
@@ -12,6 +12,9 @@ abstract contract BaseRegistrar is Ownable, IERC721 {
     event NameMigrated(uint256 indexed id, address indexed owner, uint expires);
     event NameRegistered(uint256 indexed id, address indexed owner, uint expires);
     event NameRenewed(uint256 indexed id, uint expires);
+
+    // The dweb NFT token
+    DwebToken public dwebToken;
 
     // The ENS registry
     ENS public ens;

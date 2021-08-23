@@ -1,10 +1,9 @@
 pragma solidity >=0.8.4;
 
 import "../registry/ENS.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-
 import "./BaseRegistrar.sol";
-contract BaseRegistrarImplementation is ERC721, BaseRegistrar  {
+
+contract BaseRegistrarImplementation is BaseRegistrar  {
     // A map of expiry times
     mapping(uint256=>uint) expiries;
 
@@ -22,23 +21,10 @@ contract BaseRegistrarImplementation is ERC721, BaseRegistrar  {
     );
     bytes4 constant private RECLAIM_ID = bytes4(keccak256("reclaim(uint256,address)"));
 
-    /**
-     * v2.1.3 version of _isApprovedOrOwner which calls ownerOf(tokenId) and takes grace period into consideration instead of ERC721.ownerOf(tokenId);
-     * https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.1.3/contracts/token/ERC721/ERC721.sol#L187
-     * @dev Returns whether the given spender can transfer a given token ID
-     * @param spender address of the spender to query
-     * @param tokenId uint256 ID of the token to be transferred
-     * @return bool whether the msg.sender is approved for the given token ID,
-     *    is an operator of the owner, or is the owner of the token
-     */
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view override returns (bool) {
-        address owner = ownerOf(tokenId);
-        return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
-    }
-
-    constructor(ENS _ens, bytes32 _baseNode) ERC721("","") {
+    constructor(ENS _ens, bytes32 _baseNode, DwebToken _dwebToken) {
         ens = _ens;
         baseNode = _baseNode;
+        dwebToken = _dwebToken;
     }
 
     modifier live {
@@ -49,17 +35,6 @@ contract BaseRegistrarImplementation is ERC721, BaseRegistrar  {
     modifier onlyController {
         require(controllers[msg.sender]);
         _;
-    }
-
-    /**
-     * @dev Gets the owner of the specified token ID. Names become unowned
-     *      when their registration expires.
-     * @param tokenId uint256 ID of the token to query the owner of
-     * @return address currently marked as the owner of the given token ID
-     */
-    function ownerOf(uint256 tokenId) public view override(IERC721, ERC721) returns (address) {
-        require(expiries[tokenId] > block.timestamp);
-        return super.ownerOf(tokenId);
     }
 
     // Authorises a controller, who can register and renew domains.
@@ -115,11 +90,11 @@ contract BaseRegistrarImplementation is ERC721, BaseRegistrar  {
         require(block.timestamp + duration + GRACE_PERIOD > block.timestamp + GRACE_PERIOD); // Prevent future overflow
 
         expiries[id] = block.timestamp + duration;
-        if(_exists(id)) {
+        if(dwebToken.exists(id)) {
             // Name was previously owned, and expired
-            _burn(id);
+            dwebToken.burn(id);
         }
-        _mint(owner, id);
+        dwebToken.mint(owner, id);
         if(updateRegistry) {
             ens.setSubnodeOwner(baseNode, bytes32(id), owner);
         }
@@ -138,11 +113,12 @@ contract BaseRegistrarImplementation is ERC721, BaseRegistrar  {
         return expiries[id];
     }
 
+    // TODO: revisit this. we may not require reclaim as every url is now NFT
     /**
      * @dev Reclaim ownership of a name in ENS, if you own it in the registrar.
      */
     function reclaim(uint256 id, address owner) external override live {
-        require(_isApprovedOrOwner(msg.sender, id));
+        require(dwebToken.isApprovedOrOwner(msg.sender, id));
         ens.setSubnodeOwner(baseNode, bytes32(id), owner);
     }
 
