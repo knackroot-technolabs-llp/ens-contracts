@@ -1,6 +1,7 @@
 pragma solidity >=0.8.4;
 
 import "./ENS.sol";
+import "../dwebtoken/DwebToken.sol";
 
 /**
  * The ENS registry contract.
@@ -8,7 +9,6 @@ import "./ENS.sol";
 contract ENSRegistry is ENS {
 
     struct Record {
-        address owner;
         address resolver;
         uint64 ttl;
     }
@@ -16,9 +16,12 @@ contract ENSRegistry is ENS {
     mapping (bytes32 => Record) records;
     mapping (address => mapping(address => bool)) operators;
 
+    // The dweb NFT token
+    DwebToken public dwebToken;
+
     // Permits modifications only by the owner of the specified node.
     modifier authorised(bytes32 node) {
-        address owner = records[node].owner;
+        address owner = dwebToken.ownerOf(uint256(node));
         require(owner == msg.sender || operators[owner][msg.sender]);
         _;
     }
@@ -26,8 +29,8 @@ contract ENSRegistry is ENS {
     /**
      * @dev Constructs a new ENS registrar.
      */
-    constructor() public {
-        records[0x0].owner = msg.sender;
+    constructor(DwebToken _dwebToken) public {
+        dwebToken = _dwebToken;
     }
 
     /**
@@ -61,6 +64,7 @@ contract ENSRegistry is ENS {
      * @param owner The address of the new owner.
      */
     function setOwner(bytes32 node, address owner) public virtual override authorised(node) {
+        // TODO: revisit authorized node because msg.sender won't be owner if called from other contracts
         _setOwner(node, owner);
         emit Transfer(node, owner);
     }
@@ -72,6 +76,7 @@ contract ENSRegistry is ENS {
      * @param owner The address of the new owner.
      */
     function setSubnodeOwner(bytes32 node, bytes32 label, address owner) public virtual override authorised(node) returns(bytes32) {
+        // TODO: revisit authorized node because msg.sender won't be owner if called from other contracts
         bytes32 subnode = keccak256(abi.encodePacked(node, label));
         _setOwner(subnode, owner);
         emit NewOwner(node, label, owner);
@@ -115,7 +120,8 @@ contract ENSRegistry is ENS {
      * @return address of the owner.
      */
     function owner(bytes32 node) public virtual override view returns (address) {
-        address addr = records[node].owner;
+        address addr = dwebToken.ownerOf(uint256(node));
+        // TODO: what is the impact of below after all code changes?
         if (addr == address(this)) {
             return address(0x0);
         }
@@ -161,7 +167,7 @@ contract ENSRegistry is ENS {
     }
 
     function _setOwner(bytes32 node, address owner) internal virtual {
-        records[node].owner = owner;
+        dwebToken.transfer(owner, uint256(node));
     }
 
     function _setResolverAndTTL(bytes32 node, address resolver, uint64 ttl) internal {
