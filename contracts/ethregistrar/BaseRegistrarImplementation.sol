@@ -21,10 +21,10 @@ contract BaseRegistrarImplementation is BaseRegistrar  {
     );
     bytes4 constant private RECLAIM_ID = bytes4(keccak256("reclaim(uint256,address)"));
 
-    constructor(ENS _ens, bytes32 _baseNode, DwebToken _dwebToken) {
+    constructor(ENS _ens, bytes32 _baseNode, DwebTokenController _dwebTokenController) {
         ens = _ens;
         baseNode = _baseNode;
-        dwebToken = _dwebToken;
+        dwebTokenController = _dwebTokenController;
     }
 
     modifier live {
@@ -90,11 +90,11 @@ contract BaseRegistrarImplementation is BaseRegistrar  {
         require(block.timestamp + duration + GRACE_PERIOD > block.timestamp + GRACE_PERIOD); // Prevent future overflow
 
         expiries[id] = block.timestamp + duration;
-        if(dwebToken.exists(id)) {
+        if(dwebTokenController.existsToken(id)) {
             // Name was previously owned, and expired
-            dwebToken.burn(id);
+            dwebTokenController.burnToken(id);
         }
-        dwebToken.mint(owner, id);
+        dwebTokenController.mintToken(owner, id);
         if(updateRegistry) {
             ens.setSubnodeOwner(baseNode, bytes32(id), owner);
         }
@@ -118,7 +118,7 @@ contract BaseRegistrarImplementation is BaseRegistrar  {
      * @dev Reclaim ownership of a name in ENS, if you own it in the registrar.
      */
     function reclaim(uint256 id, address owner) external override live {
-        require(dwebToken.isApprovedOrOwner(msg.sender, id));
+        require(dwebTokenController.isApprovedOrOwner(msg.sender, id));
         ens.setSubnodeOwner(baseNode, bytes32(id), owner);
     }
 

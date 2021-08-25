@@ -1,7 +1,7 @@
 pragma solidity >=0.8.4;
 
 import "./ENS.sol";
-import "../dwebtoken/DwebToken.sol";
+import "../dwebtoken/DwebTokenController.sol";
 
 /**
  * The ENS registry contract.
@@ -17,11 +17,11 @@ contract ENSRegistry is ENS {
     mapping (address => mapping(address => bool)) operators;
 
     // The dweb NFT token
-    DwebToken public dwebToken;
+    DwebTokenController public dwebTokenController;
 
     // Permits modifications only by the owner of the specified node.
     modifier authorised(bytes32 node) {
-        address owner = dwebToken.ownerOf(uint256(node));
+        address owner = dwebTokenController.ownerOf(uint256(node));
         require(owner == msg.sender || operators[owner][msg.sender]);
         _;
     }
@@ -29,8 +29,8 @@ contract ENSRegistry is ENS {
     /**
      * @dev Constructs a new ENS registrar.
      */
-    constructor(DwebToken _dwebToken) public {
-        dwebToken = _dwebToken;
+    constructor(DwebTokenController _dwebTokenController) public {
+        dwebTokenController = _dwebTokenController;
     }
 
     /**
@@ -59,6 +59,20 @@ contract ENSRegistry is ENS {
     }
 
     /**
+     * @dev Create subdomain and sets the record for a subnode.
+     * @param node The parent node.
+     * @param label The hash of the label specifying the subnode.
+     * @param owner The address of the new owner.
+     * @param resolver The address of the resolver.
+     * @param ttl The TTL in seconds.
+     */
+    function createSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual override {
+        // TODO: revisit for modifier
+        bytes32 subnode = createSubnode(node, label, owner);
+        _setResolverAndTTL(subnode, resolver, ttl);
+    }
+
+    /**
      * @dev Transfers ownership of a node to a new address. May only be called by the current owner of the node.
      * @param node The node to transfer ownership of.
      * @param owner The address of the new owner.
@@ -70,15 +84,15 @@ contract ENSRegistry is ENS {
     }
 
     /**
-     * @dev Transfers ownership of a subnode keccak256(node, label) to a new address. May only be called by the owner of the parent node.
+     * @dev Create a subnode keccak256(node, label) to a new address. May only be called by the owner of the parent node.
      * @param node The parent node.
      * @param label The hash of the label specifying the subnode.
      * @param owner The address of the new owner.
      */
-    function setSubnodeOwner(bytes32 node, bytes32 label, address owner) public virtual override authorised(node) returns(bytes32) {
+    function createSubnode(bytes32 node, bytes32 label, address owner) public virtual override authorised(node) returns(bytes32) {
         // TODO: revisit authorized node because msg.sender won't be owner if called from other contracts
         bytes32 subnode = keccak256(abi.encodePacked(node, label));
-        _setOwner(subnode, owner);
+        _createNode(subnode, owner);
         emit NewOwner(node, label, owner);
         return subnode;
     }
@@ -120,7 +134,7 @@ contract ENSRegistry is ENS {
      * @return address of the owner.
      */
     function owner(bytes32 node) public virtual override view returns (address) {
-        address addr = dwebToken.ownerOf(uint256(node));
+        address addr = dwebTokenController.ownerOf(uint256(node));
         // TODO: what is the impact of below after all code changes?
         if (addr == address(this)) {
             return address(0x0);
@@ -167,7 +181,11 @@ contract ENSRegistry is ENS {
     }
 
     function _setOwner(bytes32 node, address owner) internal virtual {
-        dwebToken.transfer(owner, uint256(node));
+        dwebTokenController.transferToken(owner, uint256(node));
+    }
+
+    function _createNode(bytes32 node, address owner) internal virtual {
+        dwebTokenController.mintToken(owner, uint256(node));
     }
 
     function _setResolverAndTTL(bytes32 node, address resolver, uint64 ttl) internal {

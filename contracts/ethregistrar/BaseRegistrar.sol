@@ -2,7 +2,7 @@ pragma solidity ^0.8.4;
 
 import "../registry/ENS.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../dwebtoken/DwebToken.sol";
+import "../dwebtoken/DwebTokenController.sol";
 
 abstract contract BaseRegistrar is Ownable {
     uint constant public GRACE_PERIOD = 90 days;
@@ -14,11 +14,12 @@ abstract contract BaseRegistrar is Ownable {
     event NameRenewed(uint256 indexed id, uint expires);
 
     // The dweb NFT token
-    DwebToken public dwebToken;
+    DwebTokenController public dwebTokenController;
 
     // The ENS registry
     ENS public ens;
 
+    // TODO: remove baseNode
     // The namehash of the TLD this registrar owns (eg, .eth)
     bytes32 public baseNode;
 
