@@ -1,9 +1,9 @@
 pragma solidity >=0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-// import "../root/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract DwebToken is ERC721 {
+contract DwebToken is ERC721, Ownable {
 
     bytes4 constant private INTERFACE_META_ID = 0x01ffc9a7;
     bytes4 constant private ERC721_ID = bytes4(
@@ -65,41 +65,36 @@ contract DwebToken is ERC721 {
      * @return * Tokens start existing when they are minted (`_mint`),
      * and stop existing when they are burned (`_burn`).
      */
-    function exists(uint256 tokenId) public view virtual returns (bool) {
+    function existsToken(uint256 tokenId) public view virtual returns (bool) {
         return _exists(tokenId);
     }
 
-    // TODO:  only Registrar can burn
     /**
      * @dev Destroys `tokenId`.
      * @param tokenId uint256 ID of the token
      * @return * Destroys tokenId. 
      */
-    function burn(uint256 tokenId) public virtual returns (bool) {
+    function burnToken(uint256 tokenId) public virtual onlyOwner returns (bool) {
         return _burn(tokenId);
     }
 
-    // TODO:  only Registrar can mint
-    // TODO:  use _safeMint instead of _mint
     /**
      * @dev Mints `tokenId` and transfers it to `to`.
      * @param owner owner of the token to be set after mint
      * @param id uint256 ID of the token
      */
-    function mint(address owner, uint256 id) public virtual {
-        _mint(owner, id);
+    function mintToken(address owner, uint256 id) public virtual onlyOwner {
+        _safeMint(owner, id);
     }
 
-    // TODO:  only token owner can call
     /**
      * @dev Transfers `tokenId` to `to`.
      * @param to transfer token to this address
      * @param id uint256 ID of the token
      */
-    function transfer(address to, uint256 id) public virtual {
+    function transferToken(address to, uint256 id) public virtual onlyOwner{
         address from = super.ownerOf(id);
-        // TODO: by calling _safeTransfer we are avoiding calling _isApprovedOrOwner. So it must be called by dweb owner/controller
-        _safeTransfer(from, to, id, "");
+        safeTransferFrom(from, to, id);
     }
 
     function supportsInterface(bytes4 interfaceID) public override(ERC721) view returns (bool) {
