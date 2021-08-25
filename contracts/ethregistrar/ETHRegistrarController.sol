@@ -111,7 +111,9 @@ contract ETHRegistrarController is Ownable {
 
             // Now transfer full ownership to the expeceted owner
             base.reclaim(tokenId, owner);
-            base.transferFrom(address(this), owner, tokenId);
+            //base.transferFrom(address(this), owner, tokenId);
+            // TODO: can we improve below?
+            base.dwebTokenController().dwebToken().safeTransferFrom(address(this), owner, tokenId);
         } else {
             require(addr == address(0));
             expires = base.register(tokenId, owner, duration);

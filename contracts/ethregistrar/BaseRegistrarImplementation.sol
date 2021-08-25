@@ -8,17 +8,6 @@ contract BaseRegistrarImplementation is BaseRegistrar  {
     mapping(uint256=>uint) expiries;
 
     bytes4 constant private INTERFACE_META_ID = bytes4(keccak256("supportsInterface(bytes4)"));
-    bytes4 constant private ERC721_ID = bytes4(
-        keccak256("balanceOf(address)") ^
-        keccak256("ownerOf(uint256)") ^
-        keccak256("approve(address,uint256)") ^
-        keccak256("getApproved(uint256)") ^
-        keccak256("setApprovalForAll(address,bool)") ^
-        keccak256("isApprovedForAll(address,address)") ^
-        keccak256("transferFrom(address,address,uint256)") ^
-        keccak256("safeTransferFrom(address,address,uint256)") ^
-        keccak256("safeTransferFrom(address,address,uint256,bytes)")
-    );
     bytes4 constant private RECLAIM_ID = bytes4(keccak256("reclaim(uint256,address)"));
 
     constructor(ENS _ens, bytes32 _baseNode, DwebTokenController _dwebTokenController) {
@@ -122,9 +111,8 @@ contract BaseRegistrarImplementation is BaseRegistrar  {
         ens.setSubnodeOwner(baseNode, bytes32(id), owner);
     }
 
-    function supportsInterface(bytes4 interfaceID) public override(ERC721, IERC165) view returns (bool) {
+    function supportsInterface(bytes4 interfaceID) public view returns (bool) {
         return interfaceID == INTERFACE_META_ID ||
-               interfaceID == ERC721_ID ||
                interfaceID == RECLAIM_ID;
     }
 }

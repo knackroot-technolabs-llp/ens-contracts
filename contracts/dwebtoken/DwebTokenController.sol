@@ -21,14 +21,15 @@ contract DwebTokenController {
     }
 
     function existsToken(uint256 tokenId) public view returns (bool) {
+        // TODO: it shoud not return true for expired domain
         return dwebToken.existsToken(tokenId);
     }
 
-    function burnToken(uint256 tokenId) public returns (bool) {
+    function burnToken(uint256 tokenId) public {
         /* TODO: signature verification has to be done before calling burn on dweb token. 
          *       Additional param may required for this method 
          */
-        return dwebToken.burnToken(tokenId);
+        dwebToken.burnToken(tokenId);
     }
 
     function mintToken(address owner, uint256 id) public {

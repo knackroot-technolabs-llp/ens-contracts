@@ -98,6 +98,19 @@ contract ENSRegistry is ENS {
     }
 
     /**
+     * @dev Transfers ownership of a subnode keccak256(node, label) to a new address. May only be called by the owner of the parent node.
+     * @param node The parent node.
+     * @param label The hash of the label specifying the subnode.
+     * @param owner The address of the new owner.
+     */
+    function setSubnodeOwner(bytes32 node, bytes32 label, address owner) public virtual override authorised(node) returns(bytes32) {
+        bytes32 subnode = keccak256(abi.encodePacked(node, label));
+        _setOwner(subnode, owner);
+        emit NewOwner(node, label, owner);
+        return subnode;
+    }
+
+    /**
      * @dev Sets the resolver address for the specified node.
      * @param node The node to update.
      * @param resolver The address of the resolver.
@@ -167,7 +180,7 @@ contract ENSRegistry is ENS {
      * @return Bool if record exists
      */
     function recordExists(bytes32 node) public virtual override view returns (bool) {
-        return records[node].owner != address(0x0);
+        return dwebTokenController.existsToken(uint256(node));
     }
 
     /**

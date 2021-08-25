@@ -19,9 +19,11 @@ interface ENS {
 
     function setRecord(bytes32 node, address owner, address resolver, uint64 ttl) external virtual;
     function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual;
+    function createSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual;
     function setSubnodeOwner(bytes32 node, bytes32 label, address owner) external virtual returns(bytes32);
     function setResolver(bytes32 node, address resolver) external virtual;
     function setOwner(bytes32 node, address owner) external virtual;
+    function createSubnode(bytes32 node, bytes32 label, address owner) external virtual returns(bytes32);
     function setTTL(bytes32 node, uint64 ttl) external virtual;
     function setApprovalForAll(address operator, bool approved) external virtual;
     function owner(bytes32 node) external virtual view returns (address);

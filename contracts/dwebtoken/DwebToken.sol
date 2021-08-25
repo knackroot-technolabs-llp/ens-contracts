@@ -72,10 +72,9 @@ contract DwebToken is ERC721, Ownable {
     /**
      * @dev Destroys `tokenId`.
      * @param tokenId uint256 ID of the token
-     * @return * Destroys tokenId. 
      */
-    function burnToken(uint256 tokenId) public virtual onlyOwner returns (bool) {
-        return _burn(tokenId);
+    function burnToken(uint256 tokenId) public virtual onlyOwner {
+        _burn(tokenId);
     }
 
     /**
