@@ -1,7 +1,7 @@
 pragma solidity >=0.8.4;
 
 import "./PriceOracle.sol";
-import "./BaseRegistrarImplementation.sol";
+import "../root/Root.sol";
 import "./StringUtils.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../resolvers/Resolver.sol";
@@ -9,7 +9,7 @@ import "../resolvers/Resolver.sol";
 /**
  * @dev A registrar controller for registering and renewing names at fixed cost.
  */
-contract ETHRegistrarController is Ownable {
+contract RootRegistrarController is Ownable {
     using StringUtils for *;
 
     uint constant public MIN_REGISTRATION_DURATION = 28 days;
@@ -29,7 +29,7 @@ contract ETHRegistrarController is Ownable {
         keccak256("makeCommitmentWithConfig(string,address,bytes32,address,address)")
     );
 
-    BaseRegistrarImplementation base;
+    Root root;
     PriceOracle prices;
     uint public minCommitmentAge;
     uint public maxCommitmentAge;
@@ -40,10 +40,10 @@ contract ETHRegistrarController is Ownable {
     event NameRenewed(string name, bytes32 indexed label, uint cost, uint expires);
     event NewPriceOracle(address indexed oracle);
 
-    constructor(BaseRegistrarImplementation _base, PriceOracle _prices, uint _minCommitmentAge, uint _maxCommitmentAge) public {
+    constructor(Root _root, PriceOracle _prices, uint _minCommitmentAge, uint _maxCommitmentAge) {
         require(_maxCommitmentAge > _minCommitmentAge);
 
-        base = _base;
+        root = _root;
         prices = _prices;
         minCommitmentAge = _minCommitmentAge;
         maxCommitmentAge = _maxCommitmentAge;
@@ -51,7 +51,7 @@ contract ETHRegistrarController is Ownable {
 
     function rentPrice(string memory name, uint duration) view public returns(uint) {
         bytes32 hash = keccak256(bytes(name));
-        return prices.price(name, base.nameExpires(uint256(hash)), duration);
+        return prices.price(name, root.nameExpires(uint256(hash)), duration);
     }
 
     function valid(string memory name) public pure returns(bool) {
@@ -60,7 +60,7 @@ contract ETHRegistrarController is Ownable {
 
     function available(string memory name) public view returns(bool) {
         bytes32 label = keccak256(bytes(name));
-        return valid(name) && base.available(uint256(label));
+        return valid(name) && root.available(uint256(label));
     }
 
     function makeCommitment(string memory name, address owner, bytes32 secret) pure public returns(bytes32) {
@@ -96,13 +96,13 @@ contract ETHRegistrarController is Ownable {
         if(resolver != address(0)) {
             // Set this contract as the (temporary) owner, giving it
             // permission to set up the resolver.
-            expires = base.register(tokenId, address(this), duration);
+            expires = root.register(tokenId, address(this), duration);
 
             // The nodehash of this label
-            bytes32 nodehash = keccak256(abi.encodePacked(base.baseNode(), label));
+            bytes32 nodehash = keccak256(abi.encodePacked(root.rootNode(), label));
 
             // Set the resolver
-            base.ens().setResolver(nodehash, resolver);
+            root.ens().setResolver(nodehash, resolver);
 
             // Configure the resolver
             if (addr != address(0)) {
@@ -110,13 +110,14 @@ contract ETHRegistrarController is Ownable {
             }
 
             // Now transfer full ownership to the expeceted owner
-            base.reclaim(tokenId, owner);
+            //base.reclaim(tokenId, owner);
+            
             //base.transferFrom(address(this), owner, tokenId);
             // TODO: can we improve below?
-            base.dwebTokenController().dwebToken().safeTransferFrom(address(this), owner, tokenId);
+            root.dwebTokenController().dwebToken().safeTransferFrom(address(this), owner, tokenId);
         } else {
             require(addr == address(0));
-            expires = base.register(tokenId, owner, duration);
+            expires = root.register(tokenId, owner, duration);
         }
 
         emit NameRegistered(name, label, owner, cost, expires);
@@ -132,7 +133,7 @@ contract ETHRegistrarController is Ownable {
         require(msg.value >= cost);
 
         bytes32 label = keccak256(bytes(name));
-        uint expires = base.renew(uint256(label), duration);
+        uint expires = root.renew(uint256(label), duration);
 
         if(msg.value > cost) {
             payable(msg.sender).transfer(msg.value - cost);
