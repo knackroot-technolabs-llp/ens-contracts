@@ -2,7 +2,7 @@ pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "../registry/ENS.sol";
-import "./ETHRegistrarController.sol";
+import "./RootRegistrarController.sol";
 import "../resolvers/Resolver.sol";
 
 contract BulkRenewal {
@@ -20,20 +20,20 @@ contract BulkRenewal {
         ens = _ens;
     }
 
-    function getController() internal view returns(ETHRegistrarController) {
+    function getController() internal view returns(RootRegistrarController) {
         Resolver r = Resolver(ens.resolver(ETH_NAMEHASH));
-        return ETHRegistrarController(r.interfaceImplementer(ETH_NAMEHASH, REGISTRAR_CONTROLLER_ID));
+        return RootRegistrarController(r.interfaceImplementer(ETH_NAMEHASH, REGISTRAR_CONTROLLER_ID));
     }
 
     function rentPrice(string[] calldata names, uint duration) external view returns(uint total) {
-        ETHRegistrarController controller = getController();
+        RootRegistrarController controller = getController();
         for(uint i = 0; i < names.length; i++) {
             total += controller.rentPrice(names[i], duration);
         }
     }
 
     function renewAll(string[] calldata names, uint duration) external payable {
-        ETHRegistrarController controller = getController();
+        RootRegistrarController controller = getController();
         for(uint i = 0; i < names.length; i++) {
             uint cost = controller.rentPrice(names[i], duration);
             controller.renew{value:cost}(names[i], duration);
