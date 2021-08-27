@@ -92,7 +92,7 @@ contract Root is Ownable, Controllable {
         }
         dwebTokenController.mintTokenForTLD(owner, id);
         if(updateRegistry) {
-            ens.setSubnodeOwner(rootNode, bytes32(id), owner);
+            ens.createSubnode(rootNode, bytes32(id), owner);
         }
 
         emit NameRegistered(id, owner, block.timestamp + duration);
