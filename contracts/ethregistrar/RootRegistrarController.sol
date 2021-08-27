@@ -86,38 +86,41 @@ contract RootRegistrarController is Ownable {
     }
 
     function registerWithConfig(string memory name, address owner, uint duration, bytes32 secret, address resolver, address addr) public payable {
+        // TODO: name has to be TLD. put check for this
         bytes32 commitment = makeCommitmentWithConfig(name, owner, secret, resolver, addr);
         uint cost = _consumeCommitment(name, duration, commitment);
 
         bytes32 label = keccak256(bytes(name));
-        uint256 tokenId = uint256(label);
+        // The nodehash of this label
+        bytes32 tokenId = keccak256(abi.encodePacked(root.rootNode(), label));
 
         uint expires;
-        if(resolver != address(0)) {
-            // Set this contract as the (temporary) owner, giving it
-            // permission to set up the resolver.
-            expires = root.register(tokenId, address(this), duration);
+        // TODO: Future release : skipping setting revords for now
+        // ---
+        // if(resolver != address(0)) {
+        //     // Set this contract as the (temporary) owner, giving it
+        //     // permission to set up the resolver.
+        //     expires = root.register(uint256(tokenId), address(this), duration);
 
-            // The nodehash of this label
-            bytes32 nodehash = keccak256(abi.encodePacked(root.rootNode(), label));
+        //     // Set the resolver
+        //     root.ens().setResolver(tokenId, resolver);
 
-            // Set the resolver
-            root.ens().setResolver(nodehash, resolver);
+        //     // Configure the resolver
+        //     if (addr != address(0)) {
+        //         Resolver(resolver).setAddr(tokenId, addr);
+        //     }
 
-            // Configure the resolver
-            if (addr != address(0)) {
-                Resolver(resolver).setAddr(nodehash, addr);
-            }
-
-            // Now transfer full ownership to the expeceted owner
-            //base.reclaim(tokenId, owner);
+        //     // Now transfer full ownership to the expeceted owner
+        //     //base.reclaim(tokenId, owner);
             
-            //base.transferFrom(address(this), owner, tokenId);
-            // TODO: can we improve below?
-            root.dwebTokenController().dwebToken().safeTransferFrom(address(this), owner, tokenId);
-        } else {
+        //     //base.transferFrom(address(this), owner, tokenId);
+        //     // TODO: can we improve below?
+        //     root.dwebTokenController().dwebToken().safeTransferFrom(address(this), owner, uint256(tokenId));
+        // } else 
+        // ---
+        {
             require(addr == address(0));
-            expires = root.register(tokenId, owner, duration);
+            expires = root.register(uint256(tokenId), owner, duration);
         }
 
         emit NameRegistered(name, label, owner, cost, expires);
