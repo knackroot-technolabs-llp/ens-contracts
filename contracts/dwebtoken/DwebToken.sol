@@ -18,11 +18,13 @@ contract DwebToken is ERC721, Ownable {
         keccak256("safeTransferFrom(address,address,uint256,bytes)")
     );
 
+    // TODO: UI has to call setApprovalForAll(<address of DwebTokenController>, true) on this contract before doing registration/transfer
+
     // TODO: token name and description
-    constructor() ERC721("","") {
+    constructor(address _rootContract) ERC721("","") {
         // TODO: is it ok to mint in constructor
         // setting owner of root(0x0)
-        _safeMint(msg.sender, 0x0);
+        _safeMint(_rootContract, 0x0);
     }
 
     /**
