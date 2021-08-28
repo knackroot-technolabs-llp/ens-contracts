@@ -115,7 +115,7 @@ contract RootRegistrarController is Ownable {
             
         //     //base.transferFrom(address(this), owner, tokenId);
         //     // TODO: can we improve below?
-        //     root.dwebTokenController().dwebToken().safeTransferFrom(address(this), owner, uint256(tokenId));
+        //     root.decentraNameController().decentraName().safeTransferFrom(address(this), owner, uint256(tokenId));
         // } else 
         // ---
         {

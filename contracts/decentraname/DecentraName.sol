@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract DwebToken is ERC721, Ownable {
+contract DecentraName is ERC721, Ownable {
 
     bytes4 constant private INTERFACE_META_ID = 0x01ffc9a7;
     bytes4 constant private ERC721_ID = bytes4(
@@ -18,7 +18,7 @@ contract DwebToken is ERC721, Ownable {
         keccak256("safeTransferFrom(address,address,uint256,bytes)")
     );
 
-    // TODO: UI has to call setApprovalForAll(<address of DwebTokenController>, true) on this contract before doing registration/transfer
+    // TODO: UI has to call setApprovalForAll(<address of DecentraNameController>, true) on this contract before doing registration/transfer
 
     // TODO: token name and description
     constructor(address _rootContract) ERC721("","") {

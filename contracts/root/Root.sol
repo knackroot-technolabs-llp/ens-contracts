@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 import "../registry/ENS.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Controllable.sol";
-import "../dwebtoken/DwebTokenController.sol";
+import "../dwebtoken/DecentraNameController.sol";
 
 contract Root is Ownable, Controllable {
     bytes32 public constant rootNode = bytes32(0);
@@ -16,7 +16,7 @@ contract Root is Ownable, Controllable {
     ENS public ens;
 
     // The dweb NFT token
-    DwebTokenController public dwebTokenController;
+    DecentraNameController public decentraNameController;
 
     // A map of expiry times
     mapping(uint256=>uint) expiries;
@@ -30,7 +30,7 @@ contract Root is Ownable, Controllable {
 
     constructor(ENS _ens) {
         ens = _ens;
-        dwebTokenController =  new DwebTokenController(address(this));
+        decentraNameController =  new DecentraNameController(address(this));
     }
 
     function setSubnodeOwner(bytes32 label, address owner)
@@ -86,11 +86,11 @@ contract Root is Ownable, Controllable {
         require(block.timestamp + duration + GRACE_PERIOD > block.timestamp + GRACE_PERIOD); // Prevent future overflow
 
         expiries[id] = block.timestamp + duration;
-        if(dwebTokenController.existsToken(id)) {
+        if(decentraNameController.existsToken(id)) {
             // Name was previously owned, and expired
-            dwebTokenController.burnToken(id);
+            decentraNameController.burnToken(id);
         }
-        dwebTokenController.mintTokenForTLD(owner, id);
+        decentraNameController.mintTokenForTLD(owner, id);
         if(updateRegistry) {
             ens.createSubnode(rootNode, bytes32(id), owner);
         }
@@ -110,12 +110,12 @@ contract Root is Ownable, Controllable {
     }
 
     // TODO: revisit this. we may not require reclaim as every url is now NFT
-    // TODO: review: removing below methods as it is no logner required. Now ownership is no longer managed in ens but in DwebToken only
+    // TODO: review: removing below methods as it is no logner required. Now ownership is no longer managed in ens but in decentraName only
     /**
      * @dev Reclaim ownership of a name in ENS, if you own it in the registrar.
      */
     // function reclaim(uint256 id, address owner) external override live {
-    //     require(dwebTokenController.isApprovedOrOwner(msg.sender, id));
+    //     require(decentraNameController.isApprovedOrOwner(msg.sender, id));
     //     ens.setSubnodeOwner(baseNode, bytes32(id), owner);
     // }
 

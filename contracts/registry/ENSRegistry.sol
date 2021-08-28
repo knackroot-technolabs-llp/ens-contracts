@@ -1,7 +1,7 @@
 pragma solidity >=0.8.4;
 
 import "./ENS.sol";
-import "../dwebtoken/DwebTokenController.sol";
+import "../dwebtoken/DecentraNameController.sol";
 
 /**
  * The ENS registry contract.
@@ -17,11 +17,11 @@ contract ENSRegistry is ENS {
     mapping (address => mapping(address => bool)) operators;
 
     // The dweb NFT token
-    DwebTokenController public dwebTokenController;
+    DecentraNameController public decentraNameController;
 
     // Permits modifications only by the owner of the specified node.
     modifier authorised(bytes32 node) {
-        address owner = dwebTokenController.ownerOf(uint256(node));
+        address owner = decentraNameController.ownerOf(uint256(node));
         require(owner == msg.sender || operators[owner][msg.sender]);
         _;
     }
@@ -29,8 +29,8 @@ contract ENSRegistry is ENS {
     /**
      * @dev Constructs a new ENS registrar.
      */
-    constructor(DwebTokenController _dwebTokenController) public {
-        dwebTokenController = _dwebTokenController;
+    constructor(DecentraNameController _decentraNameController) public {
+        decentraNameController = _decentraNameController;
     }
 
     /**
@@ -147,7 +147,7 @@ contract ENSRegistry is ENS {
      * @return address of the owner.
      */
     function owner(bytes32 node) public virtual override view returns (address) {
-        address addr = dwebTokenController.ownerOf(uint256(node));
+        address addr = decentraNameController.ownerOf(uint256(node));
         // TODO: what is the impact of below after all code changes?
         if (addr == address(this)) {
             return address(0x0);
@@ -180,7 +180,7 @@ contract ENSRegistry is ENS {
      * @return Bool if record exists
      */
     function recordExists(bytes32 node) public virtual override view returns (bool) {
-        return dwebTokenController.existsToken(uint256(node));
+        return decentraNameController.existsToken(uint256(node));
     }
 
     /**
@@ -194,11 +194,11 @@ contract ENSRegistry is ENS {
     }
 
     function _setOwner(bytes32 node, address owner) internal virtual {
-        dwebTokenController.transferToken(owner, uint256(node));
+        decentraNameController.transferToken(owner, uint256(node));
     }
 
     function _createNode(bytes32 node, address owner) internal virtual {
-        dwebTokenController.mintToken(owner, uint256(node));
+        decentraNameController.mintToken(owner, uint256(node));
     }
 
     function _setResolverAndTTL(bytes32 node, address resolver, uint64 ttl) internal {
