@@ -28,9 +28,9 @@ contract Root is Ownable, Controllable {
     event NameRegistered(uint256 indexed id, address indexed owner, uint expires);
     event NameRenewed(uint256 indexed id, uint expires);
 
-    constructor(ENS _ens, DwebTokenController _dwebTokenController) {
+    constructor(ENS _ens) {
         ens = _ens;
-        dwebTokenController = _dwebTokenController;
+        dwebTokenController =  new DwebTokenController(address(this));
     }
 
     function setSubnodeOwner(bytes32 label, address owner)
