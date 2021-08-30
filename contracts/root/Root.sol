@@ -78,7 +78,7 @@ contract Root is Ownable, Controllable, ERC721Holder {
      * @param duration Duration in seconds for the registration.
      */
 
-    function _register(uint256 id, address owner, uint duration) external onlyController returns(uint) {
+    function register(uint256 id, address owner, uint duration) external onlyController returns(uint) {
         require(available(id));
         require(block.timestamp + duration + GRACE_PERIOD > block.timestamp + GRACE_PERIOD); // Prevent future overflow
 
