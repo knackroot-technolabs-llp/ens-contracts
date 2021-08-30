@@ -77,21 +77,8 @@ contract Root is Ownable, Controllable, ERC721Holder {
      * @param owner The address that should own the registration.
      * @param duration Duration in seconds for the registration.
      */
-    function register(uint256 id, address owner, uint duration) external returns(uint) {
-      return _register(id, owner, duration, true);
-    }
 
-    /**
-     * @dev Register a name, without modifying the registry.
-     * @param id The token ID (keccak256 of the label).
-     * @param owner The address that should own the registration.
-     * @param duration Duration in seconds for the registration.
-     */
-    function registerOnly(uint256 id, address owner, uint duration) external returns(uint) {
-      return _register(id, owner, duration, false);
-    }
-
-    function _register(uint256 id, address owner, uint duration, bool updateRegistry) internal onlyController returns(uint) {
+    function _register(uint256 id, address owner, uint duration) external onlyController returns(uint) {
         require(available(id));
         require(block.timestamp + duration + GRACE_PERIOD > block.timestamp + GRACE_PERIOD); // Prevent future overflow
 
@@ -101,9 +88,6 @@ contract Root is Ownable, Controllable, ERC721Holder {
             decentraNameController.burnToken(id);
         }
         decentraNameController.mintTokenForTLD(owner, id);
-        if(updateRegistry) {
-            ens.createSubnode(rootNode, bytes32(id), owner);
-        }
 
         emit NameRegistered(id, owner, block.timestamp + duration);
 
