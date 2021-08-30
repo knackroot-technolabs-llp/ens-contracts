@@ -3,9 +3,11 @@ pragma solidity ^0.8.4;
 import "../registry/ENS.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Controllable.sol";
-import "../dwebtoken/DecentraNameController.sol";
+import "../decentraname/IDecentraNameController.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
-contract Root is Ownable, Controllable {
+// TODO-review : I have extended from ERC721Holder to make this contract as valid NFT owner
+contract Root is Ownable, Controllable, ERC721Holder {
     bytes32 public constant rootNode = bytes32(0);
     uint public constant GRACE_PERIOD = 90 days;
 
@@ -16,11 +18,13 @@ contract Root is Ownable, Controllable {
     ENS public ens;
 
     // The dweb NFT token
-    DecentraNameController public decentraNameController;
+    IDecentraNameController public decentraNameController;
 
+    // TODO: set expiry of root domain as infinity
     // A map of expiry times
     mapping(uint256=>uint) expiries;
 
+    // TODO: does locked makes sense now?
     mapping(bytes32 => bool) public locked;
 
     event TLDLocked(bytes32 indexed label);
@@ -28,9 +32,9 @@ contract Root is Ownable, Controllable {
     event NameRegistered(uint256 indexed id, address indexed owner, uint expires);
     event NameRenewed(uint256 indexed id, uint expires);
 
-    constructor(ENS _ens) {
+    constructor(ENS _ens, IDecentraNameController _decentraNameController) {
         ens = _ens;
-        decentraNameController =  new DecentraNameController(address(this));
+        decentraNameController =  _decentraNameController;
     }
 
     function setSubnodeOwner(bytes32 label, address owner)
@@ -49,6 +53,12 @@ contract Root is Ownable, Controllable {
         emit TLDLocked(label);
         locked[label] = true;
     }
+
+    function setRootDomainOwner() external onlyOwner {
+        decentraNameController.mintTokenForTLD(address(this), uint256(rootNode));
+    }
+
+    // TODO: add transfer method to transfer ownership of root node(NFT) in decentraname 
 
     // Returns the expiration timestamp of the specified id.
     function nameExpires(uint256 id) external view returns(uint) {

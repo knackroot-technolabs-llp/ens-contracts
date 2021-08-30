@@ -50,8 +50,9 @@ contract RootRegistrarController is Ownable {
     }
 
     function rentPrice(string memory name, uint duration) view public returns(uint) {
-        bytes32 hash = keccak256(bytes(name));
-        return prices.price(name, root.nameExpires(uint256(hash)), duration);
+        bytes32 label = keccak256(bytes(name));
+        bytes32 tokenId = keccak256(abi.encodePacked(root.rootNode(), label));
+        return prices.price(name, root.nameExpires(uint256(tokenId)), duration);
     }
 
     function valid(string memory name) public pure returns(bool) {
@@ -60,7 +61,8 @@ contract RootRegistrarController is Ownable {
 
     function available(string memory name) public view returns(bool) {
         bytes32 label = keccak256(bytes(name));
-        return valid(name) && root.available(uint256(label));
+        bytes32 tokenId = keccak256(abi.encodePacked(root.rootNode(), label));
+        return valid(name) && root.available(uint256(tokenId));
     }
 
     function makeCommitment(string memory name, address owner, bytes32 secret) pure public returns(bytes32) {
@@ -136,7 +138,8 @@ contract RootRegistrarController is Ownable {
         require(msg.value >= cost);
 
         bytes32 label = keccak256(bytes(name));
-        uint expires = root.renew(uint256(label), duration);
+        bytes32 tokenId = keccak256(abi.encodePacked(root.rootNode(), label));
+        uint expires = root.renew(uint256(tokenId), duration);
 
         if(msg.value > cost) {
             payable(msg.sender).transfer(msg.value - cost);

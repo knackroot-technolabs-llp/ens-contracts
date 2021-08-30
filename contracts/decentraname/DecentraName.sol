@@ -20,11 +20,11 @@ contract DecentraName is ERC721, Ownable {
 
     // TODO: UI has to call setApprovalForAll(<address of DecentraNameController>, true) on this contract before doing registration/transfer
 
-    // TODO: token name and description
-    constructor(address _rootContract) ERC721("","") {
+    // TODO: update token name and description
+    constructor() ERC721("DCN","DecentraName") {
         // TODO: is it ok to mint in constructor
         // setting owner of root(0x0)
-        _safeMint(_rootContract, 0x0);
+        //_safeMint(_rootContract, 0x0);
     }
 
     /**

@@ -1,7 +1,7 @@
 pragma solidity >=0.8.4;
 
 import "./ENS.sol";
-import "../dwebtoken/DecentraNameController.sol";
+import "../decentraname/IDecentraNameController.sol";
 
 /**
  * The ENS registry contract.
@@ -17,7 +17,7 @@ contract ENSRegistry is ENS {
     mapping (address => mapping(address => bool)) operators;
 
     // The dweb NFT token
-    DecentraNameController public decentraNameController;
+    IDecentraNameController public decentraNameController;
 
     // Permits modifications only by the owner of the specified node.
     modifier authorised(bytes32 node) {
@@ -29,7 +29,7 @@ contract ENSRegistry is ENS {
     /**
      * @dev Constructs a new ENS registrar.
      */
-    constructor(DecentraNameController _decentraNameController) public {
+    constructor(IDecentraNameController _decentraNameController) public {
         decentraNameController = _decentraNameController;
     }
 
