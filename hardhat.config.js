@@ -39,22 +39,22 @@ module.exports = {
       // Required for real DNS record tests
       initialDate: "2019-03-15T14:06:45.000+13:00",
       saveDeployments: false,
-      tags: ["test", "legacy", "use_root"],
+      tags: ["test"],
     },
     localhost: {
-      url: "http://127.0.0.1:9545",
+      url: "http://127.0.0.1:7545",
       saveDeployments: false,
-      tags: ["test", "legacy", "use_root"],
+      tags: ["test"],
     },
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_ID}`,
-      tags: ["test", "legacy", "use_root"],
-      chainId: 3,
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`,
+      tags: ["test"],
+      chainId: 4,
       accounts: real_accounts,
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
-      tags: ["legacy", "use_root"],
+      tags: [],
       chainId: 1,
       accounts: real_accounts,
     }

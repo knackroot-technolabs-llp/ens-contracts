@@ -6,43 +6,26 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
     const {deploy} = deployments;
     const {deployer, owner} = await getNamedAccounts();
 
-    if(!network.tags.use_root) {
-        return true;
-    }
+    const ensRegistry = await ethers.getContract('ENSRegistry');
+    const decentraNameController = await ethers.getContract('DecentraNameController');
 
-    const registry = await ethers.getContract('ENSRegistry');
-
-    await deploy('Root', {
+    const root = await deploy('Root', {
         from: deployer,
-        args: [registry.address],
-        log: true,
+        args: [ensRegistry.address, decentraNameController.address],
+        log: true
     });
 
-    const root = await ethers.getContract('Root');
+    console.log(`### root deployed at ${root.address}`)
 
-    let tx = await registry.setOwner(ZERO_HASH, root.address);
-    console.log(`Setting owner of root node to root contract (tx: ${tx.hash})...`);
-    await tx.wait();
-    
-    const rootOwner = await root.owner();
-    switch(rootOwner) {
-    case deployer:
-        tx = await root.attach(deployer).transferOwnership(owner);
-        console.log(`Transferring root ownership to final owner (tx: ${tx.hash})...`);
-        await tx.wait();
-    case owner:
-        if(!await root.controllers(owner)) {
-            tx = await root.attach(owner).setController(owner, true);
-            console.log(`Setting final owner as controller on root contract (tx: ${tx.hash})...`);
-            await tx.wait();
-        }
-        break;
-    default:
-        console.log(`WARNING: Root is owned by ${rootOwner}; cannot transfer to owner account`);
-    }
+    await decentraNameController.setController(root.address, true);
+    console.log(`root address ${root.address} is set as controller in DecentraNameController at ${decentraNameController.address}`);
+
+    const rootContract = await ethers.getContract('Root');
+    await rootContract.setRootDomainOwner();
+    console.log(`set root address ${root.address} as owner of root domain(0x0)`);
 
     return true;
 };
-module.exports.id = "root";
 module.exports.tags = ['root'];
-module.exports.dependencies = ['registry'];
+module.exports.id = "root";
+module.exports.dependencies = ['ENSRegistry', 'DecentraNameController'];
