@@ -35,7 +35,7 @@ contract DecentraNameController is IDecentraNameController, Controllable {
         decentraName.burnToken(tokenId);
     }
 
-    function mintToken(address owner, uint256 id) external virtual override {
+    function mintToken(address owner, uint256 id) external virtual override onlyController {
         /* TODO: signature verification has to be done before calling mintToken on dweb token. 
          *       Additional param may required for this method.
          */
