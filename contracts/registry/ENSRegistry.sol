@@ -104,6 +104,7 @@ contract ENSRegistry is ENS {
      * @param owner The address of the new owner.
      */
     function setSubnodeOwner(bytes32 node, bytes32 label, address owner) public virtual override authorised(node) returns(bytes32) {
+        require(node != bytes32(0));
         bytes32 subnode = keccak256(abi.encodePacked(node, label));
         _setOwner(subnode, owner);
         emit NewOwner(node, label, owner);
