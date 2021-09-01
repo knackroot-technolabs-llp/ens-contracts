@@ -6,7 +6,6 @@ import "./Controllable.sol";
 import "../decentraname/IDecentraNameController.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
-// TODO-review : I have extended from ERC721Holder to make this contract as valid NFT owner
 contract Root is Ownable, Controllable, ERC721Holder {
     bytes32 public constant rootNode = bytes32(0);
     uint public constant GRACE_PERIOD = 90 days;
@@ -37,13 +36,14 @@ contract Root is Ownable, Controllable, ERC721Holder {
         decentraNameController =  _decentraNameController;
     }
 
-    function setSubnodeOwner(bytes32 label, address owner)
-        external
-        onlyController
-    {
-        require(!locked[label]);
-        ens.setSubnodeOwner(rootNode, label, owner);
-    }
+    // there is already method in ensregistry to do this
+    // function setSubnodeOwner(bytes32 label, address owner)
+    //     external
+    //     onlyController
+    // {
+    //     require(!locked[label]);
+    //     ens.setSubnodeOwner(rootNode, label, owner);
+    // }
 
     function setResolver(address resolver) external onlyOwner {
         ens.setResolver(rootNode, resolver);
@@ -104,7 +104,6 @@ contract Root is Ownable, Controllable, ERC721Holder {
     }
 
     // TODO: revisit this. we may not require reclaim as every url is now NFT
-    // TODO: review: removing below methods as it is no logner required. Now ownership is no longer managed in ens but in decentraName only
     /**
      * @dev Reclaim ownership of a name in ENS, if you own it in the registrar.
      */
