@@ -15,5 +15,5 @@ interface IDecentraNameController {
 
     function mintTokenForTLD(address owner, uint256 id) external;
 
-    function transferToken(address to, uint256 id) external;
+    function transferToken(address to, uint256 id, uint8 v, bytes32 r, bytes32 s, address sender) external;
 }

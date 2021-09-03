@@ -17,12 +17,12 @@ interface ENS {
     // Logged when an operator is added or removed.
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
-    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl) external virtual;
-    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual;
+    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual;
+    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual;
     function createSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual;
-    function setSubnodeOwner(bytes32 node, bytes32 label, address owner) external virtual returns(bytes32);
+    function setSubnodeOwner(bytes32 node, bytes32 label, address owner, uint8 v, bytes32 r, bytes32 s) external virtual returns(bytes32);
     function setResolver(bytes32 node, address resolver) external virtual;
-    function setOwner(bytes32 node, address owner) external virtual;
+    function setOwner(bytes32 node, address owner, uint8 v, bytes32 r, bytes32 s) external virtual;
     function createSubnode(bytes32 node, bytes32 label, address owner) external virtual returns(bytes32);
     function setTTL(bytes32 node, uint64 ttl) external virtual;
     function setApprovalForAll(address operator, bool approved) external virtual;

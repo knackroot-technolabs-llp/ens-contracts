@@ -40,8 +40,8 @@ contract ENSRegistry is ENS {
      * @param resolver The address of the resolver.
      * @param ttl The TTL in seconds.
      */
-    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl) external virtual override {
-        setOwner(node, owner);
+    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual override {
+        setOwner(node, owner, v, r, s);
         _setResolverAndTTL(node, resolver, ttl);
     }
 
@@ -53,8 +53,8 @@ contract ENSRegistry is ENS {
      * @param resolver The address of the resolver.
      * @param ttl The TTL in seconds.
      */
-    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual override {
-        bytes32 subnode = setSubnodeOwner(node, label, owner);
+    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual override {
+        bytes32 subnode = setSubnodeOwner(node, label, owner, v, r, s);
         _setResolverAndTTL(subnode, resolver, ttl);
     }
 
@@ -77,9 +77,10 @@ contract ENSRegistry is ENS {
      * @param node The node to transfer ownership of.
      * @param owner The address of the new owner.
      */
-    function setOwner(bytes32 node, address owner) public virtual override authorised(node) {
+    function setOwner(bytes32 node, address owner, uint8 v, bytes32 r, bytes32 s) public virtual override authorised(node) {
         // TODO: revisit authorized node because msg.sender won't be owner if called from other contracts
-        _setOwner(node, owner);
+        address nodeOwner = decentraNameController.ownerOf(uint256(node));
+        _setOwner(node, owner, v, r, s, nodeOwner);
         emit Transfer(node, owner);
     }
 
@@ -103,10 +104,11 @@ contract ENSRegistry is ENS {
      * @param label The hash of the label specifying the subnode.
      * @param owner The address of the new owner.
      */
-    function setSubnodeOwner(bytes32 node, bytes32 label, address owner) public virtual override authorised(node) returns(bytes32) {
+    function setSubnodeOwner(bytes32 node, bytes32 label, address owner, uint8 v, bytes32 r, bytes32 s) public virtual override authorised(node) returns(bytes32) {
         require(node != bytes32(0));
         bytes32 subnode = keccak256(abi.encodePacked(node, label));
-        _setOwner(subnode, owner);
+        address nodeOwner = decentraNameController.ownerOf(uint256(node));
+        _setOwner(subnode, owner, v, r, s, nodeOwner);
         emit NewOwner(node, label, owner);
         return subnode;
     }
@@ -194,8 +196,8 @@ contract ENSRegistry is ENS {
         return operators[owner][operator];
     }
 
-    function _setOwner(bytes32 node, address owner) internal virtual {
-        decentraNameController.transferToken(owner, uint256(node));
+    function _setOwner(bytes32 node, address owner, uint8 v, bytes32 r, bytes32 s, address sender) internal virtual {
+        decentraNameController.transferToken(owner, uint256(node), v, r, s, sender);
     }
 
     function _createNode(bytes32 node, address owner) internal virtual {
