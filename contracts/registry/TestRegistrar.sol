@@ -32,6 +32,7 @@ contract TestRegistrar {
         require(expiryTimes[label] < block.timestamp);
 
         expiryTimes[label] = block.timestamp + registrationPeriod;
-        ens.setSubnodeOwner(rootNode, label, owner);
+        // TODO-enhacement
+        //ens.setSubnodeOwner(rootNode, label, owner);
     }
 }

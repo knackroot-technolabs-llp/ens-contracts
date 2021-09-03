@@ -71,7 +71,8 @@ contract DNSRegistrar is IDNSRegistrar {
      */
     function claim(bytes memory name, bytes memory proof) public override {
         (bytes32 rootNode, bytes32 labelHash, address addr) = _claim(name, proof);
-        ens.setSubnodeOwner(rootNode, labelHash, addr);
+        // TODO-enhancement
+        //ens.setSubnodeOwner(rootNode, labelHash, addr);
     }
 
     /**
@@ -93,14 +94,17 @@ contract DNSRegistrar is IDNSRegistrar {
         if(addr != address(0)) {
             require(resolver != address(0), "Cannot set addr if resolver is not set");
             // Set ourselves as the owner so we can set a record on the resolver
-            ens.setSubnodeRecord(rootNode, labelHash, address(this), resolver, 0);
+            // TODO-enhacement
+            //ens.setSubnodeRecord(rootNode, labelHash, address(this), resolver, 0);
             bytes32 node = keccak256(abi.encodePacked(rootNode, labelHash));
             // Set the resolver record
             AddrResolver(resolver).setAddr(node, addr);
             // Transfer the record to the owner
-            ens.setOwner(node, owner);
+            // TODO-enhacement
+            //ens.setOwner(node, owner);
         } else {
-            ens.setSubnodeRecord(rootNode, labelHash, owner, resolver, 0);
+            // TODO-enhacement
+            //ens.setSubnodeRecord(rootNode, labelHash, owner, resolver, 0);
         }
     }
 
@@ -140,9 +144,11 @@ contract DNSRegistrar is IDNSRegistrar {
         if(owner != address(this)) {
             if(parentNode == bytes32(0)) {
                 Root root = Root(ens.owner(bytes32(0)));
-                root.setSubnodeOwner(label, address(this));
+                // TODO-enhacement
+                //root.setSubnodeOwner(label, address(this));
             } else {
-                ens.setSubnodeOwner(parentNode, label, address(this));
+                // TODO-enhacement
+                //ens.setSubnodeOwner(parentNode, label, address(this));
             }
         }
         return node;

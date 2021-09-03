@@ -142,7 +142,8 @@ contract ReverseRegistrar is Ownable, Controllable {
             address(defaultResolver)
         );
         defaultResolver.setName(node, name);
-        ens.setSubnodeOwner(ADDR_REVERSE_NODE, sha3HexAddress(addr), owner);
+        // TODO-enhacement
+        //ens.setSubnodeOwner(ADDR_REVERSE_NODE, sha3HexAddress(addr), owner);
         return node;
     }
 
@@ -198,7 +199,8 @@ contract ReverseRegistrar is Ownable, Controllable {
             resolver != currentResolver);
         address newResolver = shouldUpdateResolver ? resolver : currentResolver;
 
-        ens.setSubnodeRecord(ADDR_REVERSE_NODE, label, owner, newResolver, 0);
+        // TODO-enhacement
+        //ens.setSubnodeRecord(ADDR_REVERSE_NODE, label, owner, newResolver, 0);
 
         emit ReverseClaimed(addr, node);
 

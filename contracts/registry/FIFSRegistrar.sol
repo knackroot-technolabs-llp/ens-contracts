@@ -31,6 +31,7 @@ contract FIFSRegistrar {
      * @param owner The address of the new owner.
      */
     function register(bytes32 label, address owner) public only_owner(label) {
-        ens.setSubnodeOwner(rootNode, label, owner);
+        // TODO-enhacement
+        //ens.setSubnodeOwner(rootNode, label, owner);
     }
 }
