@@ -29,6 +29,5 @@ interface ENS {
     function owner(bytes32 node) external virtual view returns (address);
     function resolver(bytes32 node) external virtual view returns (address);
     function ttl(bytes32 node) external virtual view returns (uint64);
-    function recordExists(bytes32 node) external virtual view returns (bool);
     function isApprovedForAll(address owner, address operator) external virtual view returns (bool);
 }

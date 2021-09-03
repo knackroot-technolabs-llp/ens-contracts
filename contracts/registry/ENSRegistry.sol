@@ -178,15 +178,6 @@ contract ENSRegistry is ENS {
     }
 
     /**
-     * @dev Returns whether a record has been imported to the registry.
-     * @param node The specified node.
-     * @return Bool if record exists
-     */
-    function recordExists(bytes32 node) public virtual override view returns (bool) {
-        return decentraNameController.existsToken(uint256(node));
-    }
-
-    /**
      * @dev Query if an address is an authorized operator for another address.
      * @param owner The address that owns the records.
      * @param operator The address that acts on behalf of the owner.
