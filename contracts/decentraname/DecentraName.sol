@@ -18,13 +18,12 @@ contract DecentraName is ERC721, Ownable {
         keccak256("safeTransferFrom(address,address,uint256,bytes)")
     );
 
-    // TODO: UI has to call setApprovalForAll(<address of DecentraNameController>, true) on this contract before doing registration/transfer
+    /* TODO: UI has to call setApprovalForAll(<address of DecentraNameController>, true) on this contract before doing registration/transfer. 
+     *       transaction must be signed by owner of token.
+     */
 
     // TODO: update token name and description
     constructor() ERC721("DCN","DecentraName") {
-        // TODO: is it ok to mint in constructor
-        // setting owner of root(0x0)
-        //_safeMint(_rootContract, 0x0);
     }
 
     /**
