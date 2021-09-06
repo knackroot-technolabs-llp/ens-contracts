@@ -5,14 +5,20 @@ import "../root/Root.sol";
 import "./StringUtils.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../resolvers/Resolver.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./SafeMath.sol";
 
 /**
  * @dev A registrar controller for registering and renewing names at fixed cost.
  */
 contract RootRegistrarController is Ownable {
     using StringUtils for *;
+    using SafeERC20 for IERC20;
+    using Address for address;
+    using SafeMath for uint256;
 
-    uint constant public MIN_REGISTRATION_DURATION = 28 days;
+    uint constant public MIN_REGISTRATION_DURATION = 31556926; // 1 year
+    uint constant public MAX_REGISTRATION_DURATION = 157784630; // 5 years
 
     bytes4 constant private INTERFACE_META_ID = bytes4(keccak256("supportsInterface(bytes4)"));
     bytes4 constant private COMMITMENT_CONTROLLER_ID = bytes4(
@@ -38,23 +44,48 @@ contract RootRegistrarController is Ownable {
 
     address approverAddress;
 
+    IERC20 private dWebToken;
+
+    uint256 private allowedFeeSlippagePercentage;
+
+    //Wallet where DWEB fees will go
+    address private dwebDistributorAddress;
+    //Wallet where ETH fees will go
+    address payable private companyWallet;
+
     event NameRegistered(string name, bytes32 indexed label, address indexed owner, uint cost, uint expires);
     event NameRenewed(string name, bytes32 indexed label, uint cost, uint expires);
     event NewPriceOracle(address indexed oracle);
 
-    constructor(Root _root, PriceOracle _prices, uint _minCommitmentAge, uint _maxCommitmentAge) {
+    event DecentraWebDistributorChanged(address indexed dwebDistributorAddress);
+    event CompanyWalletChanged(address indexed wallet);
+
+    modifier onlyContract(address account)
+    {
+        require(account.isContract(), "[Validation] The address does not contain a contract");
+        _;
+    }
+
+    constructor(Root _root, PriceOracle _prices, IERC20 _dWebToken, address _dwebDistributorAddress, address payable _companyWallet, uint _minCommitmentAge, uint _maxCommitmentAge) {
         require(_maxCommitmentAge > _minCommitmentAge);
 
         root = _root;
         prices = _prices;
+        dWebToken = _dWebToken;
+        dwebDistributorAddress = _dwebDistributorAddress;
+        companyWallet = _companyWallet;
         minCommitmentAge = _minCommitmentAge;
         maxCommitmentAge = _maxCommitmentAge;
+        allowedFeeSlippagePercentage = 5;
     }
 
-    function rentPrice(string memory name, uint duration) view public returns(uint) {
+    // Actual price is returned. Any additional cost/price slippage should be taken care by front end when sending tx
+    // returned price is in wei or ERC20 token decimal 
+    // duration in seconds
+    function rentPrice(string memory name, uint duration, bool isFeeInDWEBToken) view public returns(uint256) {
         bytes32 label = keccak256(bytes(name));
         bytes32 tokenId = keccak256(abi.encodePacked(root.rootNode(), label));
-        return prices.price(name, root.nameExpires(uint256(tokenId)), duration);
+        return prices.price(name, root.nameExpires(uint256(tokenId)), duration, isFeeInDWEBToken, address(dWebToken));
     }
 
     function valid(string memory name) public pure returns(bool) {
@@ -82,28 +113,32 @@ contract RootRegistrarController is Ownable {
 
     function commit(bytes32 commitment,  bytes memory sig) public {
         require(commitments[commitment] + maxCommitmentAge < block.timestamp);
-        // TODO-review replay tx(chain id), resend tx
         // name must be approved by approver address
         require(recoverSigner(commitment, sig) == approverAddress);
         commitments[commitment] = block.timestamp;
     }
 
-    function register(string calldata name, address owner, uint duration, bytes32 secret) external payable {
-      registerWithConfig(name, owner, duration, secret, address(0), address(0));
+    function register(string calldata name, address owner, uint duration, bytes32 secret, bool isFeeInDWEBToken, uint256 fee) external payable {
+      registerWithConfig(name, owner, duration, secret, address(0), address(0), isFeeInDWEBToken, fee);
     }
 
-    function registerWithConfig(string memory name, address owner, uint duration, bytes32 secret, address resolver, address addr) public payable {
+    // fee must be passed in decimal
+    function registerWithConfig(string memory name, address owner, uint duration, bytes32 secret, address resolver, address addr, bool isFeeInDWEBToken, uint256 fee) public payable {
+        
         // TODO: name has to be TLD. put check for this
         bytes32 commitment = makeCommitmentWithConfig(name, owner, secret, resolver, addr);
         
-        uint cost = _consumeCommitment(name, duration, commitment);
+        _consumeCommitment(name, duration, commitment);
+
+        uint256 cost = rentPrice(name, duration, isFeeInDWEBToken);
+        require(msg.value >= cost, "[Validation] Enough ETH not sent");
 
         bytes32 label = keccak256(bytes(name));
         // The nodehash of this label
         bytes32 tokenId = keccak256(abi.encodePacked(root.rootNode(), label));
 
         uint expires;
-        // TODO: Future release : skipping setting records for now
+        // TODO-enhancement : skipping setting records for now
         // ---
         // if(resolver != address(0)) {
         //     // Set this contract as the (temporary) owner, giving it
@@ -131,16 +166,39 @@ contract RootRegistrarController is Ownable {
             expires = root.register(uint256(tokenId), owner, duration);
         }
 
+        
+
+        // Process payment
+
+        if(isFeeInDWEBToken) {
+            // TODO-review: do we really need to fail the tx
+            uint256 feeDiff = 0;
+            if( fee < cost ) {
+                feeDiff = cost.sub(fee);
+                uint256 feeSlippagePercentage = feeDiff.mul(100).div(cost);
+                //will allow if diff is less than 5%
+                require(feeSlippagePercentage < allowedFeeSlippagePercentage, "[Validation] Fee (DWEB) is below minimum required fee");
+            }
+            dWebToken.safeTransferFrom(msg.sender, dwebDistributorAddress, cost);
+        } else {
+            // TODO-review : we still need to refund right?
+            (bool success,) = companyWallet.call{value: cost}("");
+            require(success, "[Validation] Transfer of fee failed");
+
+            // Refund any extra payment
+            if(msg.value > cost) {
+                payable(msg.sender).transfer(msg.value - cost);
+            }
+        }
+
         emit NameRegistered(name, label, owner, cost, expires);
 
-        // Refund any extra payment
-        if(msg.value > cost) {
-            payable(msg.sender).transfer(msg.value - cost);
-        }
     }
 
-    function renew(string calldata name, uint duration) external payable {
-        uint cost = rentPrice(name, duration);
+    function renew(string calldata name, uint duration, bool isFeeInDWEBToken) external payable {
+        // TODO: manage total duration should be between 1 year and 5 years
+        // TODO: payment processing in dweb pending
+        uint256 cost = rentPrice(name, duration, isFeeInDWEBToken);
         require(msg.value >= cost);
 
         bytes32 label = keccak256(bytes(name));
@@ -184,11 +242,8 @@ contract RootRegistrarController is Ownable {
 
         delete(commitments[commitment]);
 
-        uint cost = rentPrice(name, duration);
         require(duration >= MIN_REGISTRATION_DURATION);
-        require(msg.value >= cost);
-
-        return cost;
+        require(duration <= MAX_REGISTRATION_DURATION);
     }
 
     function setApproverAddress(address _approver) external onlyOwner {
@@ -222,5 +277,25 @@ contract RootRegistrarController is Ownable {
         (v, r, s) = splitSignature(sig);
 
         return ecrecover(message, v, r, s);
+    }
+
+    function setDecentraWebDistributor(address _dwebDistributorAddress) external onlyOwner onlyContract(dwebDistributorAddress) {
+        require(
+            _dwebDistributorAddress != address(0),
+            "[Validation] dwebDistributorAddress is the zero address"
+        );
+        dwebDistributorAddress = _dwebDistributorAddress;
+
+        emit DecentraWebDistributorChanged(_dwebDistributorAddress);
+    }
+
+    function setCompanyWallet(address payable wallet) external onlyOwner {
+        require(
+            wallet != address(0),
+            "[Validation] wallet is the zero address"
+        );
+        companyWallet = wallet;
+
+        emit CompanyWalletChanged(wallet);
     }
 }
