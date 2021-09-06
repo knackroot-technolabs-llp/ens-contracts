@@ -55,7 +55,7 @@ contract Root is Ownable, Controllable, ERC721Holder {
     }
 
     function setRootDomainOwner() external onlyOwner {
-        decentraNameController.mintTokenForTLD(address(this), uint256(rootNode));
+        decentraNameController.mintToken(address(this), uint256(rootNode));
     }
 
     // TODO: add transfer method to transfer ownership of root node(NFT) in decentraname 
@@ -87,7 +87,7 @@ contract Root is Ownable, Controllable, ERC721Holder {
             // Name was previously owned, and expired
             decentraNameController.burnToken(id);
         }
-        decentraNameController.mintTokenForTLD(owner, id);
+        decentraNameController.mintToken(owner, id);
 
         emit NameRegistered(id, owner, block.timestamp + duration);
 
