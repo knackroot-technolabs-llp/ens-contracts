@@ -6,17 +6,32 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
     const {deploy} = deployments;
     const {deployer, owner} = await getNamedAccounts();
 
+    const decentraWebToken = await deploy('DecentraWebToken', {
+        from: deployer,
+        args: [],
+        log: true
+    });
+
+    // initialize DecentraWebToken
+    const decentraWebTokenContract = await ethers.getContract('DecentraWebToken');
+    await decentraWebTokenContract.initialize();
+    console.log(`DecentraWebToken initialized successfully`);
+
+    console.log(`### DecentraWebToken deployed at ${decentraWebToken.address}`);
+
     const root = await ethers.getContract('Root');
     const stablePriceOracle = await ethers.getContract('StablePriceOracle');
     const minCommitmentAge = 5; // TODO: set it to minimum 60 seconds
     const maxCommitmentAge = 604800; // 7 days
     const rootRegistrarController = await deploy('RootRegistrarController', {
         from: deployer,
-        args: [root.address, stablePriceOracle.address, minCommitmentAge, maxCommitmentAge],
+        args: [root.address, stablePriceOracle.address, 
+            decentraWebToken.address, process.env.DWEB_DISTRIBUTOR_ADDR_TEST,
+            process.env.COMPANY_WALLET_ADDR_TEST, minCommitmentAge, maxCommitmentAge],
         log: true
     });
 
-    console.log(`### rootRegistrarController deployed at ${rootRegistrarController.address}`)
+    console.log(`### rootRegistrarController deployed at ${rootRegistrarController.address}`);
 
     await root.setController(rootRegistrarController.address, true);
     console.log(`rootRegistrarController address ${rootRegistrarController.address} is set as controller in root at ${root.address}`);
