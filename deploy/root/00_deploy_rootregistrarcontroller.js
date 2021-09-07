@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
@@ -6,18 +6,11 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
     const {deploy} = deployments;
     const {deployer, owner} = await getNamedAccounts();
 
-    const decentraWebToken = await deploy('DecentraWebToken', {
-        from: deployer,
-        args: [],
-        log: true
-    });
+    const decentraWebToken = await ethers.getContractFactory("DecentraWebToken");
+    const decentraWebTokenProxy = await upgrades.deployProxy(decentraWebToken);
+    await decentraWebTokenProxy.deployed();
 
-    // initialize DecentraWebToken
-    const decentraWebTokenContract = await ethers.getContract('DecentraWebToken');
-    await decentraWebTokenContract.initialize();
-    console.log(`DecentraWebToken initialized successfully`);
-
-    console.log(`### DecentraWebToken deployed at ${decentraWebToken.address}`);
+    console.log(`### DecentraWebToken deployed at ${decentraWebTokenProxy.address}`);
 
     const root = await ethers.getContract('Root');
     const stablePriceOracle = await ethers.getContract('StablePriceOracle');
@@ -26,7 +19,7 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
     const rootRegistrarController = await deploy('RootRegistrarController', {
         from: deployer,
         args: [root.address, stablePriceOracle.address, 
-            decentraWebToken.address, process.env.DWEB_DISTRIBUTOR_ADDR_TEST,
+            decentraWebTokenProxy.address, process.env.DWEB_DISTRIBUTOR_ADDR_TEST,
             process.env.COMPANY_WALLET_ADDR_TEST, minCommitmentAge, maxCommitmentAge],
         log: true
     });

@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
@@ -20,25 +20,18 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
     const uniswapV2Addr = network.tags.test ? process.env.UNISWAP_V2_ADDR_RINKEBY : process.env.UNISWAP_V2_ADDR;
     console.log(`uniswap v2 addr is ${uniswapV2Addr}`);
 
-    const priceEstimator = await deploy('PriceEstimator', {
-        from: deployer,
-        args: [],
-        log: true
-    });
+    const priceEstimator = await ethers.getContractFactory("PriceEstimator");
+    const priceEstimatorProxy = await upgrades.deployProxy(priceEstimator, [uniswapV2Addr]);
+    await priceEstimatorProxy.deployed();
 
-    // initialize PriceEstimator
-    const priceEstimatorContract = await ethers.getContract('PriceEstimator');
-    await priceEstimatorContract.initialize(uniswapV2Addr);
-    console.log(`PriceEstimator initialized successfully`);
-
-    console.log(`### priceEstimator deployed at ${priceEstimator.address}`);
+    console.log(`### priceEstimator deployed at ${priceEstimatorProxy.address}`);
 
     // TODO: set actual price
-    const prices = [5000000000, 1200000000, 40000000]; // price mul 1e8 e.g. 5000 * 1e6
+    const prices = [5000_000000, 1200_000000, 40_000000]; // price mul 1e8 e.g. 5000 * 1e6
 
     const stablePriceOracle = await deploy('StablePriceOracle', {
         from: deployer,
-        args: [priceEstimator.address, usdtAddr, prices],
+        args: [priceEstimatorProxy.address, usdtAddr, prices],
         log: true
     });
 
