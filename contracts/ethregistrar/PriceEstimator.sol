@@ -1,13 +1,13 @@
 pragma solidity >=0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./IPriceEstimator.sol";
 
 contract PriceEstimator is IPriceEstimator, OwnableUpgradeable {
-  using Address for address;
+  using AddressUpgradeable for address;
 
   //address internal constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D ;
 
@@ -21,6 +21,7 @@ contract PriceEstimator is IPriceEstimator, OwnableUpgradeable {
 
   function initialize(address uniswapRouterAddress)
   external
+  initializer
   onlyContract(uniswapRouterAddress)
   {
     __PriceEstimator_init(uniswapRouterAddress);

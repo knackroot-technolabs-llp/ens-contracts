@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+// TODO-review
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 // pragma solidity >=0.5.0;
 
@@ -226,7 +227,7 @@ contract DecentraWebToken is IERC20, OwnableUpgradeable {
 
 
     using SafeMath for uint256;
-    using Address for address;
+    using AddressUpgradeable for address;
 
     mapping (address => uint256) private _rOwned;
     mapping (address => uint256) private _tOwned;
