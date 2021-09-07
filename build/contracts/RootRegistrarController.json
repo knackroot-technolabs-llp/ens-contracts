@@ -12,6 +12,21 @@
         "type": "address"
       },
       {
+        "internalType": "contract IERC20",
+        "name": "_dWebToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_dwebDistributorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_companyWallet",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_minCommitmentAge",
         "type": "uint256"
@@ -24,6 +39,32 @@
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "wallet",
+        "type": "address"
+      }
+    ],
+    "name": "CompanyWalletChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "dwebDistributorAddress",
+        "type": "address"
+      }
+    ],
+    "name": "DecentraWebDistributorChanged",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -127,6 +168,19 @@
   },
   {
     "inputs": [],
+    "name": "MAX_REGISTRATION_DURATION",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MIN_REGISTRATION_DURATION",
     "outputs": [
       {
@@ -163,6 +217,11 @@
         "internalType": "bytes32",
         "name": "commitment",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "sig",
+        "type": "bytes"
       }
     ],
     "name": "commit",
@@ -317,6 +376,16 @@
         "internalType": "bytes32",
         "name": "secret",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFeeInDWEBToken",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
       }
     ],
     "name": "register",
@@ -355,6 +424,16 @@
         "internalType": "address",
         "name": "addr",
         "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFeeInDWEBToken",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
       }
     ],
     "name": "registerWithConfig",
@@ -373,6 +452,11 @@
         "internalType": "uint256",
         "name": "duration",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFeeInDWEBToken",
+        "type": "bool"
       }
     ],
     "name": "renew",
@@ -398,6 +482,11 @@
         "internalType": "uint256",
         "name": "duration",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFeeInDWEBToken",
+        "type": "bool"
       }
     ],
     "name": "rentPrice",
@@ -414,6 +503,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_approver",
+        "type": "address"
+      }
+    ],
+    "name": "setApproverAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_minCommitmentAge",
         "type": "uint256"
@@ -425,6 +527,32 @@
       }
     ],
     "name": "setCommitmentAges",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "wallet",
+        "type": "address"
+      }
+    ],
+    "name": "setCompanyWallet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_dwebDistributorAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setDecentraWebDistributor",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

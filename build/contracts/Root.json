@@ -424,24 +424,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "label",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "setSubnodeOwner",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes4",
         "name": "interfaceID",
         "type": "bytes4"

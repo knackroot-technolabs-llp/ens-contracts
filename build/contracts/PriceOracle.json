@@ -15,6 +15,16 @@
         "internalType": "uint256",
         "name": "duration",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFeeInDWEBToken",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "dWebTokenAddress",
+        "type": "address"
       }
     ],
     "name": "price",

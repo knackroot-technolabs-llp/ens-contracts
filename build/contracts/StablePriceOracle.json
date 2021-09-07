@@ -2,8 +2,13 @@
   {
     "inputs": [
       {
-        "internalType": "contract AggregatorInterface",
-        "name": "_usdOracle",
+        "internalType": "contract IPriceEstimator",
+        "name": "_priceEstimator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_usdTokenAddress",
         "type": "address"
       },
       {
@@ -14,19 +19,6 @@
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oracle",
-        "type": "address"
-      }
-    ],
-    "name": "OracleChanged",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -118,6 +110,16 @@
         "internalType": "uint256",
         "name": "duration",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFeeInDWEBToken",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "dWebTokenAddress",
+        "type": "address"
       }
     ],
     "name": "price",
@@ -126,6 +128,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "priceEstimator",
+    "outputs": [
+      {
+        "internalType": "contract IPriceEstimator",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -160,12 +175,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract AggregatorInterface",
-        "name": "_usdOracle",
+        "internalType": "contract IPriceEstimator",
+        "name": "_priceEstimator",
         "type": "address"
       }
     ],
-    "name": "setOracle",
+    "name": "setPriceEstimator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -213,19 +228,6 @@
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "usdOracle",
-    "outputs": [
-      {
-        "internalType": "contract AggregatorInterface",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]
