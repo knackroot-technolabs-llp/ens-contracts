@@ -111,10 +111,17 @@ contract RootRegistrarController is Ownable {
         return keccak256(abi.encodePacked(label, owner, resolver, addr, secret));
     }
 
-    function commit(bytes32 commitment,  bytes memory sig) public {
+    function commit(bytes32 commitment, uint8 v, bytes32 r, bytes32 s) public {
         require(commitments[commitment] + maxCommitmentAge < block.timestamp);
         // name must be approved by approver address
-        require(recoverSigner(commitment, sig) == approverAddress);
+        
+        //TODO-release: uncomment below block
+        /*
+        address signer = ecrecover(commitment, v, r, s);
+        require(signer == approverAddress, "commit: invalid signature");
+        require(signer != address(0), "ECDSA: invalid signature");
+        */
+        
         commitments[commitment] = block.timestamp;
     }
 
@@ -248,35 +255,6 @@ contract RootRegistrarController is Ownable {
 
     function setApproverAddress(address _approver) external onlyOwner {
         approverAddress = _approver;
-    }
-
-    function splitSignature(bytes memory sig) internal pure returns (uint8, bytes32, bytes32) {
-        require(sig.length == 65);
-
-        bytes32 r;
-        bytes32 s;
-        uint8 v;
-
-        assembly {
-            // first 32 bytes, after the length prefix
-            r := mload(add(sig, 32))
-            // second 32 bytes
-            s := mload(add(sig, 64))
-            // final byte (first byte of the next 32 bytes)
-            v := byte(0, mload(add(sig, 96)))
-        }
-
-        return (v, r, s);
-    }
-
-    function recoverSigner(bytes32 message, bytes memory sig) internal pure returns (address) {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-
-        (v, r, s) = splitSignature(sig);
-
-        return ecrecover(message, v, r, s);
     }
 
     function setDecentraWebDistributor(address _dwebDistributorAddress) external onlyOwner onlyContract(dwebDistributorAddress) {
