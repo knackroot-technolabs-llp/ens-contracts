@@ -72,6 +72,31 @@
       "address": "0x93CdDf66710396ADf73Bf3B432cBE93f48ed7E67",
       "txHash": "0xaca1751f0e05d7c654c48bfef509886221c1ea525ae8becd1f886739cb1a3c80",
       "kind": "transparent"
+    },
+    {
+      "address": "0x4d6Bba60B7797F38D1e54dA8CA95cF208e9ac127",
+      "txHash": "0x8f697fc3911d5e2d2189372166a0a8d2a2b66bd705a0d99327ccc126eee33958",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xF0E0261116b584e4Ba439993632f86c361C70ab4",
+      "txHash": "0x27ab9318d5ea75b9aa4a144b777ce960f62ee284f62d056e464d81d14c27ff75",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf9231bBC519b381d0A23C41bC091da931efACdc2",
+      "txHash": "0x068ebd3433536e1a56a339ff39b763a68bc9f985b91290c47f45327a4a95bc00",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9bb714e513604443bE76B7AB3fF0214AA0BA4d64",
+      "txHash": "0x7e8ee80320b1f766bf877600b0934e3a87ab6d271eb8bfba7ddef0ec7088de16",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x539d437A329ef492BC3046eCf3cf729945000351",
+      "txHash": "0xfc31203ab022f5c2c0b93a0cd843a8efb1501bd3bbd1898c245070d84ac2d0e6",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -361,6 +386,458 @@
           },
           "t_bool": {
             "label": "bool"
+          }
+        }
+      }
+    },
+    "36d6fec492d0c405ebf71dc288872cd20acc90ae721e4bce56c2e176df9a7fd4": {
+      "address": "0x44B1c053288F14C78341aB80FAF3F067cA7240a8",
+      "txHash": "0x050e654832224cc299f01878dba8bd294f57831c04c1ca58931a90b8da41400b",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_rOwned",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:232"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_tOwned",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:233"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "contracts/decentraname/DecentraWebToken.sol:234"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_isExcludedFromFee",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:236"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_isExcluded",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:238"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_excluded",
+            "type": "t_array(t_address)dyn_storage",
+            "src": "contracts/decentraname/DecentraWebToken.sol:239"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_tTotal",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:242"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_rTotal",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:243"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_tFeeTotal",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:244"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "contracts/decentraname/DecentraWebToken.sol:246"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "contracts/decentraname/DecentraWebToken.sol:247"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "contracts/decentraname/DecentraWebToken.sol:248"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_taxFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:250"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_previousTaxFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:251"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_liquidityFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:253"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_previousLiquidityFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:254"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_stakerFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:256"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_previousStakerFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:257"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_stakerDistributionAddr",
+            "type": "t_address",
+            "src": "contracts/decentraname/DecentraWebToken.sol:259"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "uniswapV2Router",
+            "type": "t_contract(IUniswapV2Router02)2197",
+            "src": "contracts/decentraname/DecentraWebToken.sol:261"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "uniswapV2Pair",
+            "type": "t_address",
+            "src": "contracts/decentraname/DecentraWebToken.sol:262"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "inSwapAndLiquify",
+            "type": "t_bool",
+            "src": "contracts/decentraname/DecentraWebToken.sol:264"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "swapAndLiquifyEnabled",
+            "type": "t_bool",
+            "src": "contracts/decentraname/DecentraWebToken.sol:265"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_maxTxAmount",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:267"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_numTokensSellToAddToLiquidity",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:268"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(IUniswapV2Router02)2197": {
+            "label": "contract IUniswapV2Router02"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "b4c7502f524ed7675ae26596867d1acbb62da4e140f5a493127a2a3bb92d74d3": {
+      "address": "0xAe12BE646eF7ec1Ed89a2C70Cc148d0A364494C2",
+      "txHash": "0x89683f72879c1acdcad500024e31304070f748dd58222910cbd4247e6e9cf572",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_rOwned",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:232"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_tOwned",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:233"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "contracts/decentraname/DecentraWebToken.sol:234"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_isExcludedFromFee",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:236"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_isExcluded",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/decentraname/DecentraWebToken.sol:238"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_excluded",
+            "type": "t_array(t_address)dyn_storage",
+            "src": "contracts/decentraname/DecentraWebToken.sol:239"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_tTotal",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:242"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_rTotal",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:243"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_tFeeTotal",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:244"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "contracts/decentraname/DecentraWebToken.sol:246"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "contracts/decentraname/DecentraWebToken.sol:247"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_decimals",
+            "type": "t_uint8",
+            "src": "contracts/decentraname/DecentraWebToken.sol:248"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_taxFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:250"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_previousTaxFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:251"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_liquidityFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:253"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_previousLiquidityFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:254"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_stakerFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:256"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_previousStakerFee",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:257"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_stakerDistributionAddr",
+            "type": "t_address",
+            "src": "contracts/decentraname/DecentraWebToken.sol:259"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "uniswapV2Router",
+            "type": "t_contract(IUniswapV2Router02)2197",
+            "src": "contracts/decentraname/DecentraWebToken.sol:261"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "uniswapV2Pair",
+            "type": "t_address",
+            "src": "contracts/decentraname/DecentraWebToken.sol:262"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "inSwapAndLiquify",
+            "type": "t_bool",
+            "src": "contracts/decentraname/DecentraWebToken.sol:264"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "swapAndLiquifyEnabled",
+            "type": "t_bool",
+            "src": "contracts/decentraname/DecentraWebToken.sol:265"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_maxTxAmount",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:267"
+          },
+          {
+            "contract": "DecentraWebUSDTToken",
+            "label": "_numTokensSellToAddToLiquidity",
+            "type": "t_uint256",
+            "src": "contracts/decentraname/DecentraWebToken.sol:268"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(IUniswapV2Router02)2197": {
+            "label": "contract IUniswapV2Router02"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
           }
         }
       }

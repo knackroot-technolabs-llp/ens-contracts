@@ -14,7 +14,7 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
 
     const root = await ethers.getContract('Root');
     const stablePriceOracle = await ethers.getContract('StablePriceOracle');
-    const minCommitmentAge = 5; // TODO: set it to minimum 60 seconds
+    const minCommitmentAge = 60; // TODO: set it to minimum 60 seconds
     const maxCommitmentAge = 604800; // 7 days
     const rootRegistrarController = await deploy('RootRegistrarController', {
         from: deployer,
