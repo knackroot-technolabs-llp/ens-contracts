@@ -130,6 +130,7 @@ contract RootRegistrarController is Ownable {
     }
 
     // fee must be passed in decimal
+    // name must be TLD. It should not contain dot(.)
     function registerWithConfig(string memory name, address owner, uint duration, bytes32 secret, address resolver, address addr, bool isFeeInDWEBToken, uint256 fee) public payable {
         
         // TODO: name has to be TLD. put check for this
@@ -138,7 +139,6 @@ contract RootRegistrarController is Ownable {
         _consumeCommitment(name, duration, commitment);
 
         uint256 cost = rentPrice(name, duration, isFeeInDWEBToken);
-        require(msg.value >= cost, "[Validation] Enough ETH not sent");
 
         bytes32 label = keccak256(bytes(name));
         // The nodehash of this label
@@ -179,15 +179,18 @@ contract RootRegistrarController is Ownable {
 
         if(isFeeInDWEBToken) {
             // TODO-review: do we really need to fail the tx
-            uint256 feeDiff = 0;
-            if( fee < cost ) {
-                feeDiff = cost.sub(fee);
-                uint256 feeSlippagePercentage = feeDiff.mul(100).div(cost);
-                //will allow if diff is less than 5%
-                require(feeSlippagePercentage < allowedFeeSlippagePercentage, "[Validation] Fee (DWEB) is below minimum required fee");
-            }
+            // uint256 feeDiff = 0;
+            // if( fee < cost ) {
+            //     feeDiff = cost.sub(fee);
+            //     uint256 feeSlippagePercentage = feeDiff.mul(100).div(cost);
+            //     //will allow if diff is less than 5%
+            //     require(feeSlippagePercentage < allowedFeeSlippagePercentage, "[Validation] Fee (DWEB) is below minimum required fee");
+            // }
+            require(fee >= cost, "[Validation] Enough DWEB not sent");
+            // TODO-reivew it will throw if tx is failed
             dWebToken.safeTransferFrom(msg.sender, dwebDistributorAddress, cost);
         } else {
+            require(msg.value >= cost, "[Validation] Enough ETH not sent");
             // TODO-review : we still need to refund right?
             (bool success,) = companyWallet.call{value: cost}("");
             require(success, "[Validation] Transfer of fee failed");

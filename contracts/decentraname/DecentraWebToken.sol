@@ -228,6 +228,7 @@ contract DecentraWebToken is IERC20, OwnableUpgradeable {
 
     using SafeMath for uint256;
     using AddressUpgradeable for address;
+    using SafeERC20 for IERC20;
 
     mapping (address => uint256) private _rOwned;
     mapping (address => uint256) private _tOwned;
