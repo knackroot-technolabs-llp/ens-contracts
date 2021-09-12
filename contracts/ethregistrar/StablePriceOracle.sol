@@ -36,6 +36,7 @@ contract StablePriceOracle is Ownable, PriceOracle {
         priceEstimator = _priceEstimator;
         usdTokenAddress = _usdTokenAddress;
         setPrices(_rentPrices);
+        uniswapFeePercentage = 3;
     }
 
     // returns price in wei or ERC20 token decimal

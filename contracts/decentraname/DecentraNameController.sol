@@ -28,8 +28,7 @@ contract DecentraNameController is IDecentraNameController, Controllable {
     }
 
     function burnToken(uint256 tokenId) external virtual override onlyController {
-        /* TODO: signature verification has to be done before calling burn on dweb token. 
-         *       Additional param may required for this method. It can be called bycontroller
+        /*
          * TODO: should we use expiry here
          */
         decentraName.burnToken(tokenId);

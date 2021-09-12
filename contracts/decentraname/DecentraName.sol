@@ -74,7 +74,7 @@ contract DecentraName is ERC721, Ownable {
      * @dev Destroys `tokenId`.
      * @param tokenId uint256 ID of the token
      */
-    function burnToken(uint256 tokenId) public virtual onlyOwner {
+    function burnToken(uint256 tokenId) external virtual onlyOwner {
         _burn(tokenId);
     }
 
@@ -83,7 +83,7 @@ contract DecentraName is ERC721, Ownable {
      * @param owner owner of the token to be set after mint
      * @param id uint256 ID of the token
      */
-    function mintToken(address owner, uint256 id) public virtual onlyOwner {
+    function mintToken(address owner, uint256 id) external virtual onlyOwner {
         _safeMint(owner, id);
     }
 
@@ -92,7 +92,7 @@ contract DecentraName is ERC721, Ownable {
      * @param to transfer token to this address
      * @param id uint256 ID of the token
      */
-    function transferToken(address to, uint256 id) public virtual onlyOwner{
+    function transferToken(address to, uint256 id) external virtual onlyOwner{
         address from = super.ownerOf(id);
         safeTransferFrom(from, to, id);
     }
