@@ -37,17 +37,15 @@ contract RootRegistrarController is Ownable {
 
     Root root;
     PriceOracle prices;
+
     uint public minCommitmentAge;
     uint public maxCommitmentAge;
-
     mapping(bytes32=>uint) public commitments;
-
-    address approverAddress;
 
     IERC20 private dWebToken;
 
+    address approverAddress;
     uint256 private allowedFeeSlippagePercentage;
-
     //Wallet where DWEB fees will go
     address private dwebDistributorAddress;
     //Wallet where ETH fees will go
@@ -56,10 +54,10 @@ contract RootRegistrarController is Ownable {
     event NameRegistered(string name, bytes32 indexed label, address indexed owner, uint cost, uint expires);
     event NameRenewed(string name, bytes32 indexed label, uint cost, uint expires);
     event NewPriceOracle(address indexed oracle);
-
     event DecentraWebDistributorChanged(address indexed dwebDistributorAddress);
     event CompanyWalletChanged(address indexed wallet);
 
+    // modifiers
     modifier onlyContract(address account)
     {
         require(account.isContract(), "[Validation] The address does not contain a contract");
@@ -79,9 +77,11 @@ contract RootRegistrarController is Ownable {
         allowedFeeSlippagePercentage = 5;
     }
 
+    // pure or view methods
+
     // Actual price is returned. Any additional cost/price slippage should be taken care by front end when sending tx
-    // returned price is in wei or ERC20 token decimal 
-    // duration in seconds
+    // Returned price is in wei or ERC20 token decimal 
+    // Duration is in seconds
     function rentPrice(string memory name, uint duration, bool isFeeInDWEBToken) view public returns(uint256) {
         bytes32 label = keccak256(bytes(name));
         bytes32 tokenId = keccak256(abi.encodePacked(root.rootNode(), label));
@@ -110,6 +110,68 @@ contract RootRegistrarController is Ownable {
         require(resolver != address(0));
         return keccak256(abi.encodePacked(label, owner, resolver, addr, secret));
     }
+
+    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+        return interfaceID == INTERFACE_META_ID ||
+               interfaceID == COMMITMENT_CONTROLLER_ID ||
+               interfaceID == COMMITMENT_WITH_CONFIG_CONTROLLER_ID;
+    }
+
+    // internal methods
+    function _consumeCommitment(string memory name, uint duration, bytes32 commitment) internal returns (uint256) {
+        // Require a valid commitment
+        require(commitments[commitment] + minCommitmentAge <= block.timestamp);
+
+        // If the commitment is too old, or the name is registered, stop
+        require(commitments[commitment] + maxCommitmentAge > block.timestamp);
+        require(available(name));
+
+        delete(commitments[commitment]);
+
+        require(duration >= MIN_REGISTRATION_DURATION);
+        require(duration <= MAX_REGISTRATION_DURATION);
+    }
+
+    // modifier protected methods
+    function setPriceOracle(PriceOracle _prices) public onlyOwner {
+        prices = _prices;
+        emit NewPriceOracle(address(prices));
+    }
+
+    function setCommitmentAges(uint _minCommitmentAge, uint _maxCommitmentAge) public onlyOwner {
+        minCommitmentAge = _minCommitmentAge;
+        maxCommitmentAge = _maxCommitmentAge;
+    }
+
+    function withdraw() public onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);        
+    }
+
+    function setApproverAddress(address _approver) external onlyOwner {
+        approverAddress = _approver;
+    }
+
+    function setDecentraWebDistributor(address _dwebDistributorAddress) external onlyOwner onlyContract(dwebDistributorAddress) {
+        require(
+            _dwebDistributorAddress != address(0),
+            "[Validation] dwebDistributorAddress is the zero address"
+        );
+        dwebDistributorAddress = _dwebDistributorAddress;
+
+        emit DecentraWebDistributorChanged(_dwebDistributorAddress);
+    }
+
+    function setCompanyWallet(address payable wallet) external onlyOwner {
+        require(
+            wallet != address(0),
+            "[Validation] wallet is the zero address"
+        );
+        companyWallet = wallet;
+
+        emit CompanyWalletChanged(wallet);
+    }
+
+    // public or external methods
 
     function commit(bytes32 commitment, uint8 v, bytes32 r, bytes32 s) public {
         require(commitments[commitment] + maxCommitmentAge < block.timestamp);
@@ -220,63 +282,5 @@ contract RootRegistrarController is Ownable {
         }
 
         emit NameRenewed(name, label, cost, expires);
-    }
-
-    function setPriceOracle(PriceOracle _prices) public onlyOwner {
-        prices = _prices;
-        emit NewPriceOracle(address(prices));
-    }
-
-    function setCommitmentAges(uint _minCommitmentAge, uint _maxCommitmentAge) public onlyOwner {
-        minCommitmentAge = _minCommitmentAge;
-        maxCommitmentAge = _maxCommitmentAge;
-    }
-
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);        
-    }
-
-    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
-        return interfaceID == INTERFACE_META_ID ||
-               interfaceID == COMMITMENT_CONTROLLER_ID ||
-               interfaceID == COMMITMENT_WITH_CONFIG_CONTROLLER_ID;
-    }
-
-    function _consumeCommitment(string memory name, uint duration, bytes32 commitment) internal returns (uint256) {
-        // Require a valid commitment
-        require(commitments[commitment] + minCommitmentAge <= block.timestamp);
-
-        // If the commitment is too old, or the name is registered, stop
-        require(commitments[commitment] + maxCommitmentAge > block.timestamp);
-        require(available(name));
-
-        delete(commitments[commitment]);
-
-        require(duration >= MIN_REGISTRATION_DURATION);
-        require(duration <= MAX_REGISTRATION_DURATION);
-    }
-
-    function setApproverAddress(address _approver) external onlyOwner {
-        approverAddress = _approver;
-    }
-
-    function setDecentraWebDistributor(address _dwebDistributorAddress) external onlyOwner onlyContract(dwebDistributorAddress) {
-        require(
-            _dwebDistributorAddress != address(0),
-            "[Validation] dwebDistributorAddress is the zero address"
-        );
-        dwebDistributorAddress = _dwebDistributorAddress;
-
-        emit DecentraWebDistributorChanged(_dwebDistributorAddress);
-    }
-
-    function setCompanyWallet(address payable wallet) external onlyOwner {
-        require(
-            wallet != address(0),
-            "[Validation] wallet is the zero address"
-        );
-        companyWallet = wallet;
-
-        emit CompanyWalletChanged(wallet);
     }
 }

@@ -39,52 +39,7 @@ contract StablePriceOracle is Ownable, PriceOracle {
         uniswapFeePercentage = 3;
     }
 
-    // returns price in wei or ERC20 token decimal
-    function price(string calldata name, uint expires, uint duration, bool isFeeInDWEBToken, address dWebTokenAddress) external view override returns(uint256) {
-        uint len = name.strlen();
-        if(len > rentPrices.length) {
-            len = rentPrices.length;
-        }
-        require(len > 0);
-        
-        // convert duration from seconds to years since price is of 1 year
-        uint basePrice = rentPrices[len - 1].mul(duration).div(31556926);
-        basePrice = basePrice.add(_premium(name, expires, duration));
-
-        //return attoUSDToWei(basePrice);
-
-        uint256 minRequiredFee;
-        if(isFeeInDWEBToken) {
-            minRequiredFee = getFeesInDWEBToken(basePrice, dWebTokenAddress);
-        } else {
-            minRequiredFee = getFeesInWei(basePrice);
-        }
-        return minRequiredFee;
-    }
-
-    /**
-     * @dev Sets rent prices.
-     * @param _rentPrices The price array. Each element corresponds to a specific
-     *                    name length; names longer than the length of the array
-     *                    default to the price of the last element. Values are
-     *                    in base price units, equal to one attodollar (1e-18
-     *                    dollar) each.
-     */
-    function setPrices(uint[] memory _rentPrices) public onlyOwner {
-        rentPrices = _rentPrices;
-        emit RentPriceChanged(_rentPrices);
-    }
-
-    /**
-     * @dev Sets the price oracle address
-     * @param _priceEstimator The address of the price estimator to use.
-     */
-    function setPriceEstimator(IPriceEstimator _priceEstimator) public onlyOwner {
-        priceEstimator = _priceEstimator;
-        
-        // TODO-event : event needs to be changed
-        //emit OracleChanged(address(_usdOracle));
-    }
+    // pure or view methods
 
     /**
      * @dev Returns the pricing premium in wei.
@@ -100,16 +55,6 @@ contract StablePriceOracle is Ownable, PriceOracle {
     function _premium(string memory name, uint expires, uint duration) virtual internal view returns(uint) {
         return 0;
     }
-
-    // function attoUSDToWei(uint amount) internal view returns(uint) {
-    //     uint ethPrice = uint(usdOracle.latestAnswer());
-    //     return amount.mul(1e8).div(ethPrice);
-    // }
-
-    // function weiToAttoUSD(uint amount) internal view returns(uint) {
-    //     uint ethPrice = uint(usdOracle.latestAnswer());
-    //     return amount.mul(ethPrice).div(1e8);
-    //}
 
     function getFeesInDWEBToken(uint basePrice, address dWebToken) internal view returns (uint256) {
         uint256 feesInWei = getFeesInWei(basePrice);
@@ -140,5 +85,56 @@ contract StablePriceOracle is Ownable, PriceOracle {
 
     function supportsInterface(bytes4 interfaceID) public view virtual returns (bool) {
         return interfaceID == INTERFACE_META_ID || interfaceID == ORACLE_ID;
+    }
+
+    // modifier protected methods
+
+    /**
+     * @dev Sets rent prices.
+     * @param _rentPrices The price array. Each element corresponds to a specific
+     *                    name length; names longer than the length of the array
+     *                    default to the price of the last element. Values are
+     *                    in base price units, equal to one attodollar (1e-18
+     *                    dollar) each.
+     */
+    function setPrices(uint[] memory _rentPrices) public onlyOwner {
+        rentPrices = _rentPrices;
+        emit RentPriceChanged(_rentPrices);
+    }
+
+    /**
+     * @dev Sets the price oracle address
+     * @param _priceEstimator The address of the price estimator to use.
+     */
+    function setPriceEstimator(IPriceEstimator _priceEstimator) public onlyOwner {
+        priceEstimator = _priceEstimator;
+        
+        // TODO-event : event needs to be changed
+        //emit OracleChanged(address(_usdOracle));
+    }
+
+    // public or external methods
+
+    // returns price in wei or ERC20 token decimal
+    function price(string calldata name, uint expires, uint duration, bool isFeeInDWEBToken, address dWebTokenAddress) external view override returns(uint256) {
+        uint len = name.strlen();
+        if(len > rentPrices.length) {
+            len = rentPrices.length;
+        }
+        require(len > 0);
+        
+        // convert duration from seconds to years since price is of 1 year
+        uint basePrice = rentPrices[len - 1].mul(duration).div(31556926);
+        basePrice = basePrice.add(_premium(name, expires, duration));
+
+        //return attoUSDToWei(basePrice);
+
+        uint256 minRequiredFee;
+        if(isFeeInDWEBToken) {
+            minRequiredFee = getFeesInDWEBToken(basePrice, dWebTokenAddress);
+        } else {
+            minRequiredFee = getFeesInWei(basePrice);
+        }
+        return minRequiredFee;
     }
 }

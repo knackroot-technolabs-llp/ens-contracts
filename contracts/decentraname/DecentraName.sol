@@ -18,13 +18,10 @@ contract DecentraName is ERC721, Ownable {
         keccak256("safeTransferFrom(address,address,uint256,bytes)")
     );
 
-    /* TODO: UI has to call setApprovalForAll(<address of DecentraNameController>, true) on this contract before doing registration/transfer. 
-     *       transaction must be signed by owner of token.
-     */
-
-    // TODO: update token name and description
-    constructor() ERC721("DCN","DecentraName") {
+    constructor() ERC721("DNAME","DecentraName") {
     }
+
+    // pure or view methods
 
     /**
      * v2.1.3 version of _isApprovedOrOwner which calls ownerOf(tokenId) and takes grace period into consideration instead of ERC721.ownerOf(tokenId);
@@ -70,6 +67,12 @@ contract DecentraName is ERC721, Ownable {
         return _exists(tokenId);
     }
 
+    function supportsInterface(bytes4 interfaceID) public override(ERC721) view returns (bool) {
+        return interfaceID == INTERFACE_META_ID ||
+               interfaceID == ERC721_ID;
+    }
+
+    // modifier protected methods 
     /**
      * @dev Destroys `tokenId`.
      * @param tokenId uint256 ID of the token
@@ -95,10 +98,5 @@ contract DecentraName is ERC721, Ownable {
     function transferToken(address to, uint256 id) external virtual onlyOwner{
         address from = super.ownerOf(id);
         safeTransferFrom(from, to, id);
-    }
-
-    function supportsInterface(bytes4 interfaceID) public override(ERC721) view returns (bool) {
-        return interfaceID == INTERFACE_META_ID ||
-               interfaceID == ERC721_ID;
     }
 }

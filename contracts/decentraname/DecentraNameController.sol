@@ -8,12 +8,11 @@ contract DecentraNameController is IDecentraNameController, Controllable {
 
     DecentraName public decentraName;
 
-    
-
     constructor() {
         decentraName = new DecentraName();
     }
 
+    // pure or view methods
     function ownerOf(uint256 tokenId) external virtual override view returns (address) {
         return decentraName.ownerOf(tokenId);
     }
@@ -27,6 +26,7 @@ contract DecentraNameController is IDecentraNameController, Controllable {
         return decentraName.existsToken(tokenId);
     }
 
+    // modifier protected methods
     function burnToken(uint256 tokenId) external virtual override onlyController {
         /*
          * TODO: should we use expiry here
@@ -46,6 +46,7 @@ contract DecentraNameController is IDecentraNameController, Controllable {
             chainId := chainid()
         }
 
+        // TODO: change transferToken to TransferToken and add salt in domain separator
         bytes32 eip712DomainHash = keccak256(
             abi.encode(
                 keccak256(

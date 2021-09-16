@@ -19,6 +19,8 @@ contract ENSRegistry is ENS {
     // The dweb NFT token
     IDecentraNameController public decentraNameController;
 
+    // modifiers
+
     // Permits modifications only by the owner of the specified node.
     modifier authorised(bytes32 node) {
         address owner = decentraNameController.ownerOf(uint256(node));
@@ -33,44 +35,73 @@ contract ENSRegistry is ENS {
         decentraNameController = _decentraNameController;
     }
 
+    // pure or view methods
+    
     /**
-     * @dev Sets the record for a node.
-     * @param node The node to update.
-     * @param owner The address of the new owner.
-     * @param resolver The address of the resolver.
-     * @param ttl The TTL in seconds.
+     * @dev Returns the address that owns the specified node.
+     * @param node The specified node.
+     * @return address of the owner.
      */
-    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual override {
-        setOwner(node, owner, v, r, s);
-        _setResolverAndTTL(node, resolver, ttl);
+    function owner(bytes32 node) public virtual override view returns (address) {
+        address addr = decentraNameController.ownerOf(uint256(node));
+        // TODO: what is the impact of below after all code changes?
+        if (addr == address(this)) {
+            return address(0x0);
+        }
+
+        return addr;
     }
 
     /**
-     * @dev Sets the record for a subnode.
-     * @param node The parent node.
-     * @param label The hash of the label specifying the subnode.
-     * @param owner The address of the new owner.
-     * @param resolver The address of the resolver.
-     * @param ttl The TTL in seconds.
+     * @dev Returns the address of the resolver for the specified node.
+     * @param node The specified node.
+     * @return address of the resolver.
      */
-    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual override {
-        bytes32 subnode = setSubnodeOwner(node, label, owner, v, r, s);
-        _setResolverAndTTL(subnode, resolver, ttl);
+    function resolver(bytes32 node) public virtual override view returns (address) {
+        return records[node].resolver;
     }
 
     /**
-     * @dev Create subdomain and sets the record for a subnode.
-     * @param node The parent node.
-     * @param label The hash of the label specifying the subnode.
-     * @param owner The address of the new owner.
-     * @param resolver The address of the resolver.
-     * @param ttl The TTL in seconds.
+     * @dev Returns the TTL of a node, and any records associated with it.
+     * @param node The specified node.
+     * @return ttl of the node.
      */
-    function createSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual override {
-        // TODO: revisit for modifier
-        bytes32 subnode = createSubnode(node, label, owner);
-        _setResolverAndTTL(subnode, resolver, ttl);
+    function ttl(bytes32 node) public virtual override view returns (uint64) {
+        return records[node].ttl;
     }
+
+    /**
+     * @dev Query if an address is an authorized operator for another address.
+     * @param owner The address that owns the records.
+     * @param operator The address that acts on behalf of the owner.
+     * @return True if `operator` is an approved operator for `owner`, false otherwise.
+     */
+    function isApprovedForAll(address owner, address operator) external virtual override view returns (bool) {
+        return operators[owner][operator];
+    }
+
+    // internal methods
+    function _setOwner(bytes32 node, address owner, uint8 v, bytes32 r, bytes32 s, address sender) internal virtual {
+        decentraNameController.transferToken(owner, uint256(node), v, r, s, sender);
+    }
+
+    function _createNode(bytes32 node, address owner) internal virtual {
+        decentraNameController.mintToken(owner, uint256(node));
+    }
+
+    function _setResolverAndTTL(bytes32 node, address resolver, uint64 ttl) internal {
+        if(resolver != records[node].resolver) {
+            records[node].resolver = resolver;
+            emit NewResolver(node, resolver);
+        }
+
+        if(ttl != records[node].ttl) {
+            records[node].ttl = ttl;
+            emit NewTTL(node, ttl);
+        }
+    }
+
+    // modifier protected methods
 
     /**
      * @dev Transfers ownership of a node to a new address. May only be called by the current owner of the node.
@@ -133,6 +164,47 @@ contract ENSRegistry is ENS {
         records[node].ttl = ttl;
     }
 
+    // public or external methods
+
+    /**
+     * @dev Sets the record for a node.
+     * @param node The node to update.
+     * @param owner The address of the new owner.
+     * @param resolver The address of the resolver.
+     * @param ttl The TTL in seconds.
+     */
+    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual override {
+        setOwner(node, owner, v, r, s);
+        _setResolverAndTTL(node, resolver, ttl);
+    }
+
+    /**
+     * @dev Sets the record for a subnode.
+     * @param node The parent node.
+     * @param label The hash of the label specifying the subnode.
+     * @param owner The address of the new owner.
+     * @param resolver The address of the resolver.
+     * @param ttl The TTL in seconds.
+     */
+    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual override {
+        bytes32 subnode = setSubnodeOwner(node, label, owner, v, r, s);
+        _setResolverAndTTL(subnode, resolver, ttl);
+    }
+
+    /**
+     * @dev Create subdomain and sets the record for a subnode.
+     * @param node The parent node.
+     * @param label The hash of the label specifying the subnode.
+     * @param owner The address of the new owner.
+     * @param resolver The address of the resolver.
+     * @param ttl The TTL in seconds.
+     */
+    function createSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual override {
+        // TODO: revisit for modifier
+        bytes32 subnode = createSubnode(node, label, owner);
+        _setResolverAndTTL(subnode, resolver, ttl);
+    }
+
     /**
      * @dev Enable or disable approval for a third party ("operator") to manage
      *  all of `msg.sender`'s ENS records. Emits the ApprovalForAll event.
@@ -142,68 +214,5 @@ contract ENSRegistry is ENS {
     function setApprovalForAll(address operator, bool approved) external virtual override {
         operators[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
-    }
-
-    /**
-     * @dev Returns the address that owns the specified node.
-     * @param node The specified node.
-     * @return address of the owner.
-     */
-    function owner(bytes32 node) public virtual override view returns (address) {
-        address addr = decentraNameController.ownerOf(uint256(node));
-        // TODO: what is the impact of below after all code changes?
-        if (addr == address(this)) {
-            return address(0x0);
-        }
-
-        return addr;
-    }
-
-    /**
-     * @dev Returns the address of the resolver for the specified node.
-     * @param node The specified node.
-     * @return address of the resolver.
-     */
-    function resolver(bytes32 node) public virtual override view returns (address) {
-        return records[node].resolver;
-    }
-
-    /**
-     * @dev Returns the TTL of a node, and any records associated with it.
-     * @param node The specified node.
-     * @return ttl of the node.
-     */
-    function ttl(bytes32 node) public virtual override view returns (uint64) {
-        return records[node].ttl;
-    }
-
-    /**
-     * @dev Query if an address is an authorized operator for another address.
-     * @param owner The address that owns the records.
-     * @param operator The address that acts on behalf of the owner.
-     * @return True if `operator` is an approved operator for `owner`, false otherwise.
-     */
-    function isApprovedForAll(address owner, address operator) external virtual override view returns (bool) {
-        return operators[owner][operator];
-    }
-
-    function _setOwner(bytes32 node, address owner, uint8 v, bytes32 r, bytes32 s, address sender) internal virtual {
-        decentraNameController.transferToken(owner, uint256(node), v, r, s, sender);
-    }
-
-    function _createNode(bytes32 node, address owner) internal virtual {
-        decentraNameController.mintToken(owner, uint256(node));
-    }
-
-    function _setResolverAndTTL(bytes32 node, address resolver, uint64 ttl) internal {
-        if(resolver != records[node].resolver) {
-            records[node].resolver = resolver;
-            emit NewResolver(node, resolver);
-        }
-
-        if(ttl != records[node].ttl) {
-            records[node].ttl = ttl;
-            emit NewTTL(node, ttl);
-        }
     }
 }

@@ -36,14 +36,24 @@ contract Root is Ownable, Controllable, ERC721Holder {
         decentraNameController =  _decentraNameController;
     }
 
-    // there is already method in ensregistry to do this
-    // function setSubnodeOwner(bytes32 label, address owner)
-    //     external
-    //     onlyController
-    // {
-    //     require(!locked[label]);
-    //     ens.setSubnodeOwner(rootNode, label, owner);
-    // }
+    // pure or view methods
+    
+    // Returns the expiration timestamp of the specified id.
+    function nameExpires(uint256 id) external view returns(uint) {
+        return expiries[id];
+    }
+
+    // Returns true iff the specified name is available for registration.
+    function available(uint256 id) public view returns(bool) {
+        // Not available if it's registered here or in its grace period.
+        return expiries[id] + GRACE_PERIOD < block.timestamp;
+    }
+
+    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+        return interfaceID == INTERFACE_META_ID;
+    }
+
+    // modifer protected methods
 
     function setResolver(address resolver) external onlyOwner {
         ens.setResolver(rootNode, resolver);
@@ -59,17 +69,6 @@ contract Root is Ownable, Controllable, ERC721Holder {
     }
 
     // TODO: add transfer method to transfer ownership of root node(NFT) in decentraname 
-
-    // Returns the expiration timestamp of the specified id.
-    function nameExpires(uint256 id) external view returns(uint) {
-        return expiries[id];
-    }
-
-    // Returns true iff the specified name is available for registration.
-    function available(uint256 id) public view returns(bool) {
-        // Not available if it's registered here or in its grace period.
-        return expiries[id] + GRACE_PERIOD < block.timestamp;
-    }
 
     /**
      * @dev Register a name.
@@ -111,12 +110,4 @@ contract Root is Ownable, Controllable, ERC721Holder {
     //     require(decentraNameController.isApprovedOrOwner(msg.sender, id));
     //     ens.setSubnodeOwner(baseNode, bytes32(id), owner);
     // }
-
-    function supportsInterface(bytes4 interfaceID)
-        external
-        pure
-        returns (bool)
-    {
-        return interfaceID == INTERFACE_META_ID;
-    }
 }
