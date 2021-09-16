@@ -5,6 +5,7 @@ require("@nomiclabs/hardhat-solhint");
 require("hardhat-gas-reporter");
 require("hardhat-deploy");
 require("hardhat-deploy-ethers");
+require("@openzeppelin/hardhat-upgrades");
 
 // Load environment variables from .env file. Suppress warnings using silent
 // if this file is missing. dotenv will never modify any environment variables
@@ -39,22 +40,23 @@ module.exports = {
       // Required for real DNS record tests
       initialDate: "2019-03-15T14:06:45.000+13:00",
       saveDeployments: false,
-      tags: ["test", "legacy", "use_root"],
+      tags: ["test"],
     },
     localhost: {
-      url: "http://127.0.0.1:9545",
+      url: "http://127.0.0.1:7545",
       saveDeployments: false,
-      tags: ["test", "legacy", "use_root"],
+      tags: ["test"],
     },
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_ID}`,
-      tags: ["test", "legacy", "use_root"],
-      chainId: 3,
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`,
+      tags: ["test"],
+      gas: 3_500_000,
+      chainId: 4,
       accounts: real_accounts,
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
-      tags: ["legacy", "use_root"],
+      tags: [],
       chainId: 1,
       accounts: real_accounts,
     }

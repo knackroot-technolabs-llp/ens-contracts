@@ -17,16 +17,17 @@ interface ENS {
     // Logged when an operator is added or removed.
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
-    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl) external virtual;
-    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual;
-    function setSubnodeOwner(bytes32 node, bytes32 label, address owner) external virtual returns(bytes32);
+    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual;
+    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl, uint8 v, bytes32 r, bytes32 s) external virtual;
+    function createSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external virtual;
+    function setSubnodeOwner(bytes32 node, bytes32 label, address owner, uint8 v, bytes32 r, bytes32 s) external virtual returns(bytes32);
     function setResolver(bytes32 node, address resolver) external virtual;
-    function setOwner(bytes32 node, address owner) external virtual;
+    function setOwner(bytes32 node, address owner, uint8 v, bytes32 r, bytes32 s) external virtual;
+    function createSubnode(bytes32 node, bytes32 label, address owner) external virtual returns(bytes32);
     function setTTL(bytes32 node, uint64 ttl) external virtual;
     function setApprovalForAll(address operator, bool approved) external virtual;
     function owner(bytes32 node) external virtual view returns (address);
     function resolver(bytes32 node) external virtual view returns (address);
     function ttl(bytes32 node) external virtual view returns (uint64);
-    function recordExists(bytes32 node) external virtual view returns (bool);
     function isApprovedForAll(address owner, address operator) external virtual view returns (bool);
 }
